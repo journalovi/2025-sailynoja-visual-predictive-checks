@@ -35,7 +35,7 @@ lightbox: true
 
 ::: {.callout-important appearance="simple" icon=false collapse=false}
 
-This article is intended to be viewed as an HTML, and its latest version is hosted online [here](https://teemusailynoja.github.io/visual-predictive-checking). 
+This article is intended to be viewed as an HTML, and its latest version is hosted online [here](https://teemusailynoja.github.io/visual-predictive-checks). 
 
 :::
 
@@ -45,7 +45,7 @@ This article is intended to be viewed as an HTML, and its latest version is host
 ## Under Review {.unnumbered}
 This paper is [under review](https://www.journalovi.org/under-review.html) on the experimental track of
 the [Journal of Visualization and Interaction](https://www.journalovi.org/). See the 
-[reviewing process](https://github.com/journalovi/2025-sailynoja-ppc/issues).
+[reviewing process](https://github.com/journalovi/2025-sailynoja-visual-predictive-checks/issues).
 :::
 
 ::: {.callout-note appearance="simple" icon=false collapse=false}
@@ -85,7 +85,7 @@ Bayesian model criticism practices.
 
 Source files of this article, as well as supplementary materials providing additional detail into
 the examples and case studies shown in this article, can be found at
-[https://teemusailynoja.github.io/visual-predictive-checking](https://teemusailynoja.github.io/visual-predictive-checking).
+[https://teemusailynoja.github.io/visual-predictive-checks](https://teemusailynoja.github.io/visual-predictive-checks).
 
 ###### Authorship
 
