@@ -1,26 +1,44 @@
-## The experimental-track JoVI article template
+# Recommendations for visual predictive checks in Bayesian workflow
 
-This repository contains the template for the [experimental track](https://www.journalovi.org/submit.html#experimental)
-at JoVI.
+This repository contains our paper introducing current practices in visual posterior (and prior)
+predictive checks (PPCs), In the article, we provide discussion on the shortcomings of some of these
+commonly used visualizations and give recommendations for alternative visualization techniques.
 
-Papers for this track are written in [Quarto](https://quarto.org/) which is an open source publishing format that supports inline code, including languages like R, Python, Julia, and JavaScript (via Observable Notebook).
+## Repository structure:
 
-To edit this template, edit [index.qmd](index.qmd). HTML output of the template is in [index.html](index.html) and can also be previewed online [here](https://www.journalovi.org/jovi-template-quarto/).
-Please commit the HTML version of your paper to your repostiory when you submit so that reviewers can easily preview the paper.
+```bash
+.
+├── code 
+│   └── quarto  # More extended case-studies on the examples shown in the article.
+│   └── R       # Implementations of custom visualizations and PIT computations.
+│   └── stan    # Source code for the probabilistic models used in the examples.
+├── images      # The figures used the article.
+├── index.*     # The article as qmd, pdf and html.
+```
 
-We provide a few versions of the template:
+# Abstract
 
-- **Quarto**: [index.qmd](index.qmd). The main format used for publication, which 
-is a simple markdown-based text format. We **strongly recommend** writing in this
-format, as it will offer the most flexibility and control, but may be a less familiar
-writing experience. For the experimental track, the other formats below will be
-converted to this format for the final publication.
+## Introduction
+A key step in the Bayesian workflow for model building is the graphical assessment of model predictions,
+whether these are drawn from the prior or posterior predictive distribution.
+The goal of these assessments is
+to identify whether the model is a reasonable (and ideally accurate) representation of the domain
+knowledge and/or observed data. Despite the key role of these visual predictive checks in a Bayesian
+workflow, there is a need for more guidance for selecting, interpreting, and
+diagnosing appropriate visualizations. As a visual predictive check itself can be viewed as a 
+model fit to data, assessing when this model fails to represent the data is important for drawing
+well-informed conclusions.
 
-- **Jupyter notebook**: [index.ipynb](index.ipynb). You can write JoVI papers in 
-jupyter notebook, which may be desirable if you wish to write JoVI papers using
-a collaborative notebook authoring platform such as Juypter Lab or Google Colab.
+## Demonstration
 
-- **Word**: [index.docx](index.docx). You can write JoVI papers in Word, however
-you must be careful to use the built-in styles. During the final paper production
-we will assist with conversion from Word to Quarto, but the process will likely
-not be as smooth as the other formats.
+We present recommendations for visual predictive checks for observations that are: continuous,
+discrete, or a mixture of the two. We also discuss diagnostics to aid in the selection of visual
+methods. Specifically, in the detection of an incorrect assumption of continuously-distributed data:
+identifying when data is likely to be discrete or contain discrete components, detecting and estimating
+possible bounds in data, and a diagnostic of the goodness-of-fit to data for density plots made
+through kernel density estimates.
+
+## Conclusion
+We offer recommendations and diagnostic tools to mitigate ad-hoc decision-making in visual
+predictive checks. These contributions aim to improve the robustness and interpretability of
+Bayesian model criticism practices.

@@ -1,0 +1,18 @@
+\definecolor{quarto-callout-note-color-frame}{HTML}{FFFFFF}
+
+$if(title)$
+\title{\textbf{$title$}$if(thanks)$\thanks{$thanks$}$endif$}
+$endif$
+
+$if(author)$
+\author{
+  $for(by-author)$$by-author.name.literal$$if(by-author.next)$, $endif$, $endfor$ \\
+  $if(affiliations)$
+    \textit{$for(affiliations)$$if(it.name)$$it.name$$endif$$if(it.city)$, $it.city$$endif$$if(it.country)$, $it.country$$endif$$endfor$}
+  $endif$
+}
+$endif$
+
+$if(date)$
+\date{$date$}
+$endif$

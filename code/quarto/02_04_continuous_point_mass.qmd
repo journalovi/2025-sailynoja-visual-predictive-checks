@@ -1,0 +1,245 @@
+---
+title: "Point mass example"
+author: "Teemu Säilynoja"
+date: "2023-11-01"
+date-modified: last-modified
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+    code-line-numbers: true
+    default-image-extension: png
+    fig-format: png
+    embed-resources: true
+knitr:
+  opts_chunk:
+    fig.path: ../../images/
+    dev.args:
+      bg: transparent
+execute:
+  cache: true
+---
+
+Below, we provide an example of visualizing a continuous valued sample from a distribution with a point mass --- a single value that has an elevated probability. These sampling distributions occur for example in datasets, where a continuous variable has zero inflation, of some other underlying process, where some predetermined value is imputed for cases fulfilling certain criteria.
+Both the KDE density plot and histogram have a potential of misrepresenting the density close to the point mass and the quality of the visualization is dependent on the choices for bandwidth and bin width respectively.
+```{r}
+#| label: imports
+#| message: false
+library(ggplot2)
+library(ggdist)
+library(bayesplot)
+
+source("code/R/helpers.R")
+source("code/R/helpers_qdotplot.R")
+source("code/R/helpers_kde.R")
+source("code/R/helpers_histogram.R")
+
+theme_set(ppc_paper_theme() +
+  theme(
+    axis.title = element_blank(),
+    legend.position = "none"
+  ))
+set.seed(7656754)
+```
+
+
+```{r}
+n <- 1e3
+nq <- 100
+bw_dots <- sqrt(1 / nq)
+
+# Point mass
+x <- rnorm(n, 0, .5)
+x[1:50] <- 1
+
+```
+
+Again, we generate `r n` samples. And make the plot of the true sampling density.
+```{r}
+#| label: 02_04_pointmass_true_density
+#| fig-width: 10
+#| fig-height: 6
+true_density <- geom_line(aes(
+  x = c(c(1, 1), seq(-2, 2, length.out = 1e3)),
+  y = c(c(0, 0.2), (1 - 50 / n) * dnorm(seq(-2, 2, length.out = 1e3), 0, 0.5)),
+  group = c(1, 1, rep(2, 1e3))
+), linewidth = 1)
+ggplot() +
+  true_density +
+  ppc_paper_theme(30) +
+  theme(
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+```
+
+## Quantile dotplot
+
+We begin by making a quantile dot plot visualizing the sample. The dots seem to fit the distribution well, and we see a distinct spike at the point mass.
+```{r}
+#| label: 02_04_pointmass_qdotplot_visualisation
+#| fig-width: 10
+#| fig-height: 3
+qdots <- ggplot() +
+  stat_dots(
+    aes(x = x),
+    quantiles = nq,
+    binwidth = bw_dots,
+    overflow = "keep",
+    height = 1.1 * (max(
+      bin_dots(
+        x = quantile(x, stats::ppoints(nq, a = 1 / 2), type = 5),
+        y = 0,
+        binwidth = bw_dots
+      )$y + bw_dots
+    )),
+    fill = paper_colors["mid"],
+    color = paper_colors["mid"]
+  ) +
+  true_density +
+  scale_y_continuous(breaks = c(0, 0.5, 1)) +
+  coord_equal() +
+  labs(x = "", y = "")
+
+qdots
+```
+
+The good fit to data is also displayed by the PIT ECDF plot.
+
+```{r}
+#| label: 02_04_pointmass_qdotplot_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+n_eval <- nq
+ecdf_difference_limits <-
+  bayesplot:::ecdf_intervals(
+    gamma = bayesplot:::adjust_gamma(N = n, K = n_eval, prob = .95),
+    N = n,
+    K = n_eval
+  )
+
+x0 <- 1:n_eval / n_eval
+
+ecdf_qdot <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = ecdf_difference_limits$lower[-1] / n - x0)) +
+  geom_step(aes(y = ecdf_difference_limits$upper[-1] / n - x0)) +
+  geom_step(aes(
+    y = ecdf(pit_qdotplot(x, nq))(x0) - x0
+  ), color = paper_colors["mid"], linewidth = 1) +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 6.5) +
+  labs(x = "", y = "")
+
+ecdf_qdot
+```
+
+## Histogram
+
+We start with the bin width computation
+```{r}
+#| label: binwidth_computation
+bw_hist <- 2 * IQR(x) / length(x)^(1 / 3)
+
+```
+
+Overlaying the histogram with the true density shows that the placement of the histogram bins unfortunately places the bin representing the point mass slightly before the true spike. Still, the histogram manages to clearly show us a spike in the distribution.
+```{r}
+#| label: 02_04_pointmass_histogram_visualisation
+#| fig-width: 10
+#| fig-height: 3
+hist_plot <- ggplot() +
+  geom_histogram(
+    aes(x = x, y = after_stat(density)),
+    color = paper_colors["dark_highlight"],
+    fill = paper_colors["mid"],
+    binwidth = bw_hist,
+    # center = mean(range(x)),
+    # fill = "gray",
+  ) +
+  true_density +
+  scale_y_continuous(breaks = c(0, 0.5, 1)) +
+  coord_equal(
+    xlim = layer_scales(qdots)$x$range$range,
+    ylim = layer_scales(qdots)$y$range$range,
+  ) +
+  labs(x = "", y = "")
+
+hist_plot
+```
+
+Goodness-of-fit evaluation warns us that the spike is misrepresented, this could be remedied by using a smaller bin width to more accurately place the bin on the point mass.
+```{r}
+#| label: pit_ecdf_bounds
+n_eval <- n
+ecdf_difference_limits <-
+  bayesplot:::ecdf_intervals(
+    gamma = bayesplot:::adjust_gamma(N = n, K = n_eval, prob = .95, TRUE),
+    N = n,
+    K = n_eval
+  )
+
+x0 <- 1:n_eval / n_eval
+```
+```{r}
+#| label: 02_04_pointmass_histogram_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+ecdf_hist <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = ecdf_difference_limits$lower[-1] / n - x0)) +
+  geom_step(aes(y = ecdf_difference_limits$upper[-1] / n - x0)) +
+  geom_step(aes(
+    y = ecdf(pit_from_hist(hist_plot, x, bw = bw_hist, 1))(x0) - x0
+  ), color = paper_colors["mid"], linewidth = 1) +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 6.5) +
+  labs(x = "", y = "")
+
+ecdf_hist
+```
+
+## Density plot
+
+Finally, we visualize the sample using a kernel density plot. With SJ band with selection algorithm used in the default KDE density plot implementation of `ggdist` we see a distinct increase in the density estimate near the point mass, but the increase starts relatively early, and last quite far past the point mass.
+```{r}
+#| label: 02_04_pointmass_kde_visualisation
+#| fig-width: 10
+#| fig-height: 3
+kde_plot <- ggplot() +
+  true_density +
+  stat_slab(
+    aes(x = x),
+    density = "unbounded",
+    fill = NA,
+    normalize = "none",
+    scale = 1,
+    colour = paper_colors["mid"],
+    linewidth = 1
+  )+
+  xlim(layer_scales(qdots)$x$range$range) +
+  ylim(layer_scales(qdots)$y$range$range)
+
+kde_plot
+```
+
+The PIT ECDF plot indicates the goodness-of-fit issues to us, allowing for some alternative visualizations and possibly helping in the workflow of modelling, as the point mass can be identified.
+```{r}
+#| label: 02_04_pointmass_kde_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+ecdf_kde <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = (ecdf_difference_limits$lower[-1] - 1:n) / n)) +
+  geom_step(aes(y = (ecdf_difference_limits$upper[-1] - 1:n) / n)) +
+  geom_step(aes(
+    y = ecdf(pit_from_densityplot(kde_plot, 2, x, T))(x0) - x0
+  ), colour = paper_colors["mid"], linewidth = 1) +
+  labs(colour = "") +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 5)
+
+ecdf_kde
+```

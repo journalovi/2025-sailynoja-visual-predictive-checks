@@ -1,0 +1,258 @@
+---
+title: "Calibrarion of Ordinal Posterior Predictions"
+date: "2023-02-04"
+date-modified: last-modified
+author: "Teemu Säilynoja"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+    code-line-numbers: true
+    default-image-extension: png
+    fig-format: png
+    embed-resources: true
+knitr:
+  opts_chunk:
+    fig.path: ../../images/
+    dev.args:
+      bg: transparent
+execute:
+  cache: true
+---
+
+This notebook reproduces and expands on the examples of predictive checks for ordinal data, shown in
+Section 6 of the article.
+
+```{r}
+#| label: options
+#| code-summary: "Imports & options"
+#| output: false
+#| message: false
+
+library("bayesplot")
+library("cmdstanr")
+library("patchwork")
+library("ggplot2")
+library("khroma")
+library("dplyr")
+
+
+# Source for the modified reliability plot
+source("code/R/helpers.R")
+source("code/R/pava_plots.R")
+
+theme_set(ppc_paper_theme())
+bayesplot_theme_set(ppc_paper_theme())
+
+SEED <- 236543
+set.seed(SEED)
+SAVE_FITS <- TRUE
+```
+
+
+In assessing the calibration, we use the ordinal nature of the data and use the cumulative posterior
+predictive mass function.
+
+## Data set
+
+```{r}
+#| label: data_generation
+#| code-summary: Data generation
+K <- 5
+N <- 1500
+sigma <- .5
+c <- sample(1:K, N, replace = T)
+x <- rnorm(N, c, sigma)
+standata_gmm <- list(
+  K = K,
+  N = N,
+  x = x,
+  y = c,
+  sigma = sigma
+)
+
+```
+
+We generate data by drawing `r N` observations from a mixture of `r K` Gaussians with
+means `r paste(1:(K-1), sep = ", ")`, and `r K`, and standard deviation $0.5$. 
+
+\begin{align}
+x_n &\sim \mathcal N\!\!\left(k, 0.5^2\right), &\text{for } n \in\{1,\dots,N\}\\
+k &\sim \text{Categorical}(\theta_k),&\\
+\theta_k &= \frac 1 K, &\text{for } k \in \{1, \dots, K\}.
+\end{align}
+```{r}
+#| label: 4_3_ordinal_data_densities
+#| dev.args :
+#|   bg: transparent
+data.frame(
+  x = rep(seq(min(standata_gmm$x), max((standata_gmm$x)), .01), K),
+  d = 1:K |> sapply(\(c) dnorm(seq(min(standata_gmm$x), max((standata_gmm$x)), .01), c, sigma)) |> c(),
+  c = rep(1:K, each = length(seq(min(standata_gmm$x), max((standata_gmm$x)), .01)))
+) |>
+  group_by(x) |>
+  mutate(percentage = d / sum(d)) |>
+  ggplot() +
+  geom_line(
+    aes(
+      x = x,
+      y = percentage,
+      color = as.factor(c),
+      group = c
+    ),
+    linewidth = 2,
+    key_glyph = "rect"
+  ) +
+  scale_color_manual(
+    aesthetics = c("color"),
+    values = unname(paper_colors[1:6])
+  ) +
+  labs(color = "Value", x = expression("x"), y = "Proportion") +
+  coord_equal(ratio = 2, xlim = range(standata_gmm$x), ylim = c(0, 1), expand = FALSE) +
+  theme(legend.position = "top")
+```
+
+## Model
+
+We fit two models to the data, both structured to first normalize the data and
+then fit a Gaussian mixture model (GMM) with K = `r K`` mixture components. The first model replicates a simple implementation error where standard deviation of the mixture components was incorrectly scaled.
+```{r}
+#| label: model_code
+#| code-summary: Read model code
+
+gmm <- cmdstan_model("code/stan/gmm_classifier.stan")
+gmm
+```
+
+```{r}
+#| warning: false
+#| label: fit_models
+#| code-summary: run CmdStanR
+fit_1 <- gmm$sample(
+  data = c(standata_gmm, list(correct_sigma = 0)),
+  parallel_chains = 4,
+  refresh = 0,
+  seed = SEED,
+  show_messages = FALSE
+)
+
+fit_2 <- gmm$sample(
+  data = c(standata_gmm, list(correct_sigma = 1)),
+  parallel_chains = 4,
+  refresh = 0,
+  seed = SEED,
+  show_messages = FALSE
+)
+```
+
+```{r}
+#| label: classification probabilities
+p_1 <- matrix(colMeans(fit_1$draws(variables = "ppm", format = "matrix")), ncol = K)
+
+p_2 <- matrix(colMeans(fit_2$draws(variables = "ppm", format = "matrix")), ncol = K)
+```
+
+## Predictive checks
+
+First, we use a bar graph to visualize the relative frequencies of the groups in the observation and the predictive draws. We don't see much difference between the models, and all of the observations seem to fall within the credible intervals of the predictions of both models.
+
+```{r}
+#| label: 4_3_ordinal_ppc_bars
+p2 <- ppc_bars(
+  y = as.numeric(c),
+  yrep = fit_2$draws(variables = "yrep", format = "matrix")
+) +
+  ggtitle("Model 2") +
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank()
+  )
+
+p1 <- ppc_bars(
+  y = as.numeric(c),
+  yrep = fit_1$draws(variables = "yrep", format = "matrix")
+) +
+  ggtitle("Model 1")
+
+(p1 + p2) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+```
+
+When using the PAV-adjusted calibration plots, we see that the first model, with the initial implementation error is under confident (S-shaped calibration curves) in its predictions, and assigns probabilities too close to 0.5 to many cases that the other model is better able to separate towards the observed outcomes.
+
+```{r}
+#| label: 4_3_ordinal_reliability_plots_1
+ppc_calibration_pava(
+  y = as.numeric(c <= 1),
+  p = p_1[, 1],
+  quantiles = 100,
+  dot_scale = .7,
+  fill_alpha = .3,
+  cep_line_color = paper_colors["orange"]
+)
+ppc_calibration_pava(
+  y = as.numeric(c <= 2),
+  p = pmin(1, rowSums(p_1[, 1:2])),
+  quantiles = 100,
+  dot_scale = .4,
+  fill_alpha = .3,
+  cep_line_color = paper_colors["orange"]
+)
+ppc_calibration_pava(
+  y = as.numeric(c <= 3),
+  p = pmin(1, rowSums(p_1[, 1:3])),
+  quantiles = 100,
+  dot_scale = .4,
+  fill_alpha = .3,
+  cep_line_color = paper_colors["orange"]
+)
+ppc_calibration_pava(
+  y = as.numeric(c <= 4),
+  p = pmin(1, rowSums(p_1[, 1:4])),
+  quantiles = 100,
+  dot_scale = .7,
+  fill_alpha = .3,
+  cep_line_color = paper_colors["orange"]
+)
+```
+
+
+```{r}
+#| label: 4_3_ordinal_reliability_plots_2
+ppc_calibration_pava(
+  y = as.numeric(c <= 1),
+  p = p_2[, 1],
+  quantiles = 100,
+  dot_scale = .75,
+  fill_alpha = .3,
+  cep_line_color = paper_colors["orange"]
+)
+ppc_calibration_pava(
+  y = as.numeric(c <= 2),
+  p = pmin(1, rowSums(p_2[, 1:2])),
+  quantiles = 100,
+  dot_scale = .7,
+  fill_alpha = .3,
+  cep_line_color = paper_colors["orange"]
+)
+ppc_calibration_pava(
+  y = as.numeric(c <= 3),
+  p = pmin(1, rowSums(p_2[, 1:3])),
+  quantiles = 100,
+  dot_scale = .7,
+  fill_alpha = .3,
+  cep_line_color = paper_colors["orange"]
+)
+ppc_calibration_pava(
+  y = as.numeric(c <= 4),
+  p = pmin(1, rowSums(p_2[, 1:4])),
+  quantiles = 100,
+  dot_scale = .85,
+  fill_alpha = .3,
+  cep_line_color = paper_colors["orange"]
+)
+```
+
+
+
+

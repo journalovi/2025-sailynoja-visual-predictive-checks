@@ -1,0 +1,275 @@
+---
+title: "Continuous random variable with a bounded value domain"
+author: "Teemu Säilynoja"
+date: "2023-11-01"
+date-modified: last-modified
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+    code-line-numbers: true
+    default-image-extension: png
+    fig-format: png
+    embed-resources: true
+knitr:
+  opts_chunk:
+    fig.path: ../../images/
+    dev.args:
+      bg: transparent
+execute:
+  cache: true
+---
+
+Below, we provide an example of visualizing a continuous valued sample from a distribution with left and right bounds. Both the KDE density plot and histogram have a potential of misrepresenting the density close to the bounds and the quality of the visualization is dependent on the choices for bandwidth and bin width respectively.
+
+```{r}
+#| label: imports
+#| message: false
+library(ggplot2)
+library(ggdist)
+library(bayesplot)
+
+source("code/R/helpers.R")
+source("code/R/helpers_qdotplot.R")
+source("code/R/helpers_kde.R")
+source("code/R/helpers_histogram.R")
+
+theme_set(ppc_paper_theme() +
+  theme(
+    axis.title = element_blank(),
+    legend.position = "none"
+  ))
+
+set.seed(233246)
+```
+
+```{r}
+n <- 1e3
+nq <- 100
+bw_dots <- sqrt(1 / nq)
+
+# Bounded
+x <- qexp(runif(n, .25, .75),.5)
+```
+
+Again, we generate `r n` samples. And make the plot of the true sampling density.
+```{r}
+#| label: 02_03_bounded_true_density
+#| fig-width: 10
+#| fig-height: 6
+
+true_density <- geom_line(aes(
+  x = seq(0, 1.1 * max(x), length.out = 1e3),
+  y = sapply(seq(0, 1.1 * max(x), length.out = 1e3), \(xi) {
+    ifelse(xi < qexp(.25,.5),
+      0,
+      ifelse(xi < qexp(.75,.5),
+        2 * dexp(xi,.5),
+        0
+      )
+    )
+  })
+),
+linewidth = 1)
+
+ggplot()  +
+  true_density +
+  ppc_paper_theme(30) +
+  theme(
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+```
+
+## Quantile dot plot
+
+We begin by making a quantile dot plot visualizing the sample. The dots seem to fit the distribution well.
+```{r}
+#| label: 02_03_bounded_qdotplot_visualisation
+#| fig-width: 10
+#| fig-height: 3
+qdots <- ggplot() +
+  stat_dots(
+    aes(x = x),
+    quantiles = nq,
+    binwidth = bw_dots,
+    overflow = "keep",
+    height = 1.1 * (max(
+      bin_dots(
+        x = quantile(x, stats::ppoints(nq, a = 1 / 2), type = 5),
+        y = 0,
+        binwidth = bw_dots
+      )$y + bw_dots
+    )),
+    fill = paper_colors["mid"],
+    color = paper_colors["mid"]
+  ) +
+  true_density +
+  scale_y_continuous(breaks = c(0, 0.4, 0.8)) +
+  coord_equal() +
+  labs(x = "", y = "")
+
+qdots
+```
+
+The good fit to data is confirmed by the PIT ECDF plot.
+```{r}
+#| label: 02_03_bounded_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+n_eval <- nq
+ecdf_difference_limits <-
+  bayesplot:::ecdf_intervals(
+    gamma = bayesplot:::adjust_gamma(N = n, K = n_eval, prob = .95),
+    N = n,
+    K = n_eval
+  )
+
+x0 <- 1:n_eval / n_eval
+
+ecdf_qdot <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = ecdf_difference_limits$lower[-1] / n - x0)) +
+  geom_step(aes(y = ecdf_difference_limits$upper[-1] / n - x0)) +
+  geom_step(aes(
+    y = ecdf(pit_qdotplot(x, nq))(x0) - x0
+  ), color = paper_colors["mid"], linewidth = 1) +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 6.5) +
+  labs(x = "", y = "")
+
+ecdf_qdot
+```
+
+## Histogram
+
+Again, we start with the binwidth computation:
+```{r}
+#| label: binwidth_computation
+bw_hist <- 2 * IQR(x) / length(x)^(1 / 3)
+```
+
+Data visualization shows that the method of centering the bins on the data unfortunately places the first and last bin outside the true bounds of the sampling distribution.
+```{r}
+#| label: 02_03_bounded_histogram_visualisation
+#| fig-width: 10
+#| fig-height: 3
+hist_plot <- ggplot() +
+  geom_histogram(
+    aes(x = x, y = after_stat(density)),
+    color = paper_colors["dark_highlight"],
+    fill = paper_colors["mid"],
+    binwidth = bw_hist,
+    # center = mean(range(x)),
+    #fill = "gray",
+  ) +
+  true_density +
+  scale_y_continuous(breaks = c(0, 0.4, 0.8)) +
+  coord_equal(
+    xlim = layer_scales(qdots)$x$range$range,
+    ylim = layer_scales(qdots)$y$range$range,
+  ) +
+  labs(x = "", y = "")
+
+hist_plot
+```
+
+Goodness-of-fit evaluation reveals this issue and could be used to warn the user of this issue in representing the boundaries of the distribution.
+```{r}
+#| label: 02_03_bounded_histogram_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+n_eval <- n
+ecdf_difference_limits <-
+  bayesplot:::ecdf_intervals(
+    gamma = bayesplot:::adjust_gamma(N = n, K = n_eval, prob = .95),
+    N = n,
+    K = n_eval
+  )
+
+x0 <- 1:n_eval / n_eval
+
+ecdf_hist <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = ecdf_difference_limits$lower[-1] / n - x0)) +
+  geom_step(aes(y = ecdf_difference_limits$upper[-1] / n - x0)) +
+  geom_step(aes(
+    y = ecdf(pit_from_hist(hist_plot, x, bw = bw_hist, 1))(x0) - x0
+  ), color = paper_colors["mid"], linewidth = 1) +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 6.5) +
+  labs(x = "", y = "")
+
+ecdf_hist
+```
+
+## Density plot
+
+We make two density plots, one using the automated boundary detection implemented in `ggdist`, the other with an unbounded density. We see that the density plots agree within the bulk of the distribution, but give different estimates of hte distribution close to the bounds. The automated boundary detection seems to be making a good job at representing the sample even close to bounds of the distribution.  
+```{r}
+#| label: 02_03_bounded_kde_visualisation
+#| fig-width: 10
+#| fig-height: 3
+kde_plot <- ggplot() +
+  true_density +
+  stat_slab(
+    aes(x = x, colour = "SJ"),
+    density = "unbounded",
+    fill = NA,
+    normalize = "none",
+    scale = 1/layer_scales(qdots)$y$range$range[2],
+    height = layer_scales(qdots)$y$range$range[2],
+    linewidth = 1
+  ) +
+  stat_slab(
+    aes(x = x, colour = "Boundary detection + SJ"),
+    density = "bounded",
+    fill = NA,
+    normalize = "none",
+    scale = 1/layer_scales(qdots)$y$range$range[2],
+    height = layer_scales(qdots)$y$range$range[2],
+    linewidth = 1
+  ) +
+  labs(color = "") +
+  scale_color_manual(
+    values = unname(paper_colors[c("orange", "mid")])
+  ) +
+  scale_y_continuous(breaks = c(0, 0.4, 0.8)) +
+  coord_equal(
+    xlim = layer_scales(qdots)$x$range$range,
+    ylim = layer_scales(qdots)$y$range$range,
+  )
+
+kde_plot
+```
+
+The graphical goodness-of-fit test reveals the issues with the unbounded KDE. Even the KDE with the automated boundary detection seems to cross the confidence bands at the very beginning of the plot, but has a much better fit to the data.
+```{r}
+#| label: 02_03_bounded_kde_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+ecdf_kde <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = (ecdf_difference_limits$lower[-1] - 1:n) / n)) +
+  geom_step(aes(y = (ecdf_difference_limits$upper[-1] - 1:n) / n)) +
+  geom_step(aes(
+    y = ecdf(pit_from_densityplot(kde_plot, 2, x, T))(x0) - x0,
+    colour = "SJ"
+  ),
+  linewidth = 1) +
+  geom_step(aes(
+    y = ecdf(pit_from_densityplot(kde_plot, 3, x, T))(x0) - x0,
+    colour = "Boundary detection + SJ"
+  ),
+  linewidth = 1) +
+  labs(colour = "") +
+  scale_color_manual(
+    values = unname(paper_colors[c("orange", "mid")])
+  ) +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 6.5)
+
+ecdf_kde
+```

@@ -1,0 +1,204 @@
+---
+title: "Visual predictive checking with overlaid plots"
+author: "Teemu Säilynoja"
+date: "2023-01-19"
+date-modified: last-modified
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+    code-line-numbers: true
+    default-image-extension: png
+    fig-format: png
+    embed-resources: true
+knitr:
+  opts_chunk:
+    fig.path: ../../images/
+    dev.args:
+      bg: transparent
+execute:
+  cache: true
+---
+
+In this notebook we demonstrate the differences of quantile dot plots, histograms, and KDE density plots when overlaying predictive draws from the model on the observation.
+
+```{r}
+#| label: imports
+#| message: false
+library(ggplot2)
+library(ggdist)
+library(bayesplot)
+library(cmdstanr)
+
+source("code/R/helpers.R")
+source("code/R/helpers_qdotplot.R")
+source("code/R/helpers_kde.R")
+source("code/R/helpers_histogram.R")
+
+theme_set(ppc_paper_theme(28) +
+  theme(
+    axis.title = element_blank(),
+    legend.position = "none",
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    axis.line.y = element_blank()
+  ))
+
+bayesplot_theme_set(ppc_paper_theme(28) +
+  theme(
+    axis.title = element_blank(),
+    legend.position = "none",
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    axis.line.y = element_blank()
+  ))
+
+color_scheme_set(unname(paper_colors[1:6]))
+set.seed(9865875)
+```
+
+We start by creating a normally distributed sample.
+```{r}
+#| label: make_data
+n <- 1e3
+nq <- 100
+bw_dots <- sqrt(1 / nq)
+y <- rnorm(n, sd = .4)
+```
+
+We fit the following Stan model to the sample and extract predictive draws.
+
+```{r}
+#| label: show_stan_model
+#| class-output: stan
+model <- cmdstan_model(stan_file = "code/stan/02_05_normal.stan")
+
+model$print()
+```
+```{r}
+#| label: fit_stan_model
+fit <- model$sample(data = list(N = n, Y = y), refresh = 0, thin = 50)
+```
+
+```{r}
+#| label: bin_yrep
+yrep <- fit$draws(variables = "yrep", format = "matrix")
+## For histogram binning:
+yrep_h <- yrep
+yrep_h[yrep_h < min(y)] <- min(y)
+yrep_h[yrep_h > max(y)] <- max(y)
+```
+
+
+## PPC with quantile dot plots
+
+We plot the observation as quantile dot plot with 100 quantiles. Then, we overlay just the top dot of each stack to visualize the variation in the quantile dot plots of the predictive draws. As the dots from the same draw are not linked in the visualization, we can't assess the variation in the overall shape between draws. 
+```{r}
+#| label: 02_05_qdot_overlay
+qdots <- ggplot(
+  bin_dots(
+    x = quantile(y, stats::ppoints(nq, a = 1 / 2), type = 5),
+    y = 0,
+    binwidth = bw_dots
+)) +
+  ggforce::geom_circle(
+    aes(x0 = x, y0 = y, r = 0.5 * bw_dots),
+    fill = paper_colors["mid"],
+    color = paper_colors["mid_highlight"],
+    linewidth = .8
+  ) +
+  ggforce::geom_circle(
+    aes(x0 = x, y0 = y, r = .5 * bw_dots),
+    alpha = .2,
+    fill = paper_colors["light_highlight"],
+    data = apply(
+      yrep[1:50,],
+      1,
+      \(row) bin_dots(
+        x = quantile(row, stats::ppoints(nq, a = 1 / 2), type = 5),
+        y = 0,
+        binwidth = bw_dots
+      ) |>
+        dplyr::group_by(bin) |>
+        dplyr::summarise(x = min(x), y = max(y)) |>
+        dplyr::select(x, y, bin)
+    ) |> dplyr::bind_rows(),
+    linewidth = 0,
+    n = 10
+  ) +
+  coord_equal()
+
+qdots
+```
+
+## PPC with histogram
+
+We compute the bin width with the observation and use this and the bin breaks also for visualizing the posterior predictive draws.
+```{r}
+#| label: binwidth_computation
+bw_hist <- 2 * IQR(y) / length(y)^(1 / 3)
+```
+
+Overlaying the predictive mean and credible interval of each bin only allows us to compare the predictions to the observation per individual bin. Like with quantile dot plots, we can't see the variation in hte overall shape of the distribution between the predictive draws.
+```{r}
+#| label: 02_05_hist_overlay
+
+p_hist <- ggplot(data.frame(y = y)) +
+  geom_histogram(
+    aes(
+      x = y,
+      y = after_stat(density)
+    ),
+    fill = paper_colors["light_highlight"],
+    color = paper_colors["mid"],
+    linewidth = .8,
+    binwidth = bw_hist,
+    center = mean(range(y))
+  )
+
+p_hist <- p_hist +
+  geom_pointinterval(
+    data = yrep_h |> apply(1, \(row) hist(
+      row,
+      breaks = c(layer_data(p_hist)$xmin[1], layer_data(p_hist)$xmax),
+      plot = F
+    )[c("mids", "density")]) |> dplyr::bind_rows() |> dplyr::group_by(mids) |> dplyr::summarise(
+      y = mean(density),
+      ymin = quantile(density, .05),
+      ymax = quantile(density, .95)
+    ),
+    aes(
+      x = mids,
+      y = y,
+      ymin = ymin,
+      ymax = ymax
+    ),
+    color = paper_colors["dark_highlight"],
+    interval_color = paper_colors["dark"],
+    linewidth = .8
+  ) +
+  coord_equal(
+    xlim = layer_scales(qdots)$x$range$range,
+    ylim = layer_scales(qdots)$y$range$range
+  )
+
+p_hist
+```
+
+## PPC with overlaid KDE density plots
+
+`bayesplot` already has overlaid KDE densities implemented. This is a common visual PPC plot and shows an overview of the observation and draws from the predictive distribution.
+
+```{r}
+#| label: 02_05_kde_overlay
+
+ppc_dens_overlay(y, yrep, alpha = 1) +
+  coord_equal(
+    xlim = layer_scales(qdots)$x$range$range,
+    ylim = layer_scales(qdots)$y$range$range
+  )
+```
+
+
+

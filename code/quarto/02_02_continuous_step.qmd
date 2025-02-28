@@ -1,0 +1,330 @@
+---
+title: "Step density example"
+author: "Teemu Säilynoja"
+date: "2023-11-01"
+date-modified: last-modified
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+    code-line-numbers: true
+    default-image-extension: png
+    fig-format: png
+    embed-resources: true
+knitr:
+  opts_chunk:
+    fig.path: ../../images/
+    dev.args:
+      bg: transparent
+execute:
+  cache: true
+---
+
+Below, we provide an example of visualizing a continuous valued sample from a distribution with a stepped density function. Both the KDE density plot and histogram have potential at misrepresenting the discontinuities in the density and the quality of hte visualization is dependent on the choices for bandwidth and bin width respectively.
+
+```{r}
+#| label: imports
+#| message: false
+library(ggplot2)
+library(ggdist)
+library(bayesplot)
+
+source("code/R/helpers.R")
+source("code/R/helpers_qdotplot.R")
+source("code/R/helpers_kde.R")
+source("code/R/helpers_histogram.R")
+
+theme_set(ppc_paper_theme() +
+  theme(
+    axis.title = element_blank(),
+    legend.position = "none"
+  ))
+
+set.seed(233246)
+```
+
+
+```{r}
+n <- 1e3
+nq <- 100
+bw_dots <- sqrt(1 / nq)
+
+p_left <- .4 # pnorm(-.5)
+p_right <- .6 # pnorm(.5,0,.5)
+sd_right <- .5
+
+step_left <- -.5
+step_right <- .5
+
+rleft <- \(n) qnorm(runif(n, max = pnorm(step_left)))
+rright <- \(n) qnorm(runif(n, min = pnorm(step_right, sd = sd_right)), sd = sd_right)
+
+# Step
+x <- unlist(replicate(n, {
+  xi <- runif(1)
+  switch((1 + (xi > p_left) + (xi > p_right)),
+    rleft(1), # left tail
+    runif(1, step_left, step_right), # mid
+    rright(1) # right tail
+  )
+}))
+```
+
+Above, we create the dataset of `r n`draws. Next, we plot the density for later comparisons against the density visualizations.
+
+```{r}
+#| label: 02_02_step_true_density
+#| fig-width: 10
+#| fig-height: 6
+true_density <- geom_line(
+  aes(
+    x = seq(min(x), max(x), length.out = 1e3),
+    y = sapply(seq(min(x), max(x), length.out = 1e3), \(xi) {
+      switch(1 + (xi > step_left) + (xi > step_right),
+        dnorm(xi) / pnorm(step_left) * p_left,
+        (p_right - p_left) / (step_right - step_left),
+        (1 - p_right) * dnorm(xi, sd = sd_right) / (1 - pnorm(step_right, sd = sd_right))
+      )
+    })
+  ),
+  linewidth = 1
+)
+ggplot() +
+  true_density +
+  ppc_paper_theme(30) +
+  theme(
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+```
+
+
+## Quantile dotplot
+
+First, we visualize the sample using a quantile dot plot with `r nq` quantiles. 
+```{r}
+#| label: 02_02_step_qdotplot_visualisation
+#| fig-width: 10
+#| fig-height: 3
+qdots <- ggplot() +
+  stat_dots(
+    aes(x = x),
+    quantiles = nq,
+    binwidth = bw_dots,
+    overflow = "keep",
+    height = 1.1 * (max(
+      bin_dots(
+        x = quantile(x, stats::ppoints(nq, a = 1 / 2), type = 5),
+        y = 0,
+        binwidth = bw_dots
+      )$y + bw_dots
+    )),
+    fill = paper_colors["mid"],
+    color = paper_colors["mid"]
+  ) +
+  true_density +
+  scale_y_continuous(breaks = c(0, 0.5, 1)) +
+  coord_equal() +
+  labs(x = "", y = "")
+
+qdots
+```
+
+Then we make a goodness-of-fit assessment using the PIT ECDF plots. The visualization seems to fit the data well.
+
+```{r}
+#| label: 02_02_step_qdotplot_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+n_eval <- nq
+ecdf_difference_limits <-
+  bayesplot:::ecdf_intervals(
+    gamma = bayesplot:::adjust_gamma(N = n, K = n_eval, prob = .95),
+    N = n,
+    K = n_eval
+  )
+
+x0 <- 1:n_eval / n_eval
+
+ecdf_qdot <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = ecdf_difference_limits$lower[-1] / n - x0)) +
+  geom_step(aes(y = ecdf_difference_limits$upper[-1] / n - x0)) +
+  geom_step(aes(
+    y = ecdf(pit_qdotplot(x, nq))(x0) - x0
+  ), color = paper_colors["mid"], linewidth = 1) +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 6.5) +
+  labs(x = "", y = "")
+
+ecdf_qdot
+```
+
+
+## Histogram
+
+We start by bin width computation to replace the default value of 30 bins in `ggplot2`.
+```{r}
+#| label: binwidth_computation
+bw_hist <- 2 * IQR(x) / length(x)^(1 / 3)
+```
+
+Then we make the histogram and overlay the true density on the visualization. The centered binning seems to cause the histogram to misrepresent the location of the discontinuity slightly. 
+```{r}
+#| label: 02_02_step_histogram_visualisation
+#| fig-width: 10
+#| fig-height: 3
+hist_plot <- ggplot() +
+  geom_histogram(
+    aes(x = x, y = after_stat(density)),
+    color = paper_colors["dark_highlight"],
+    fill = paper_colors["mid"],
+    binwidth = bw_hist,
+    # center = mean(range(x)),
+    # fill = "gray",
+  ) +
+  true_density +
+  scale_y_continuous(breaks = c(0, 0.5, 1)) +
+  coord_equal(
+    xlim = layer_scales(qdots)$x$range$range,
+    ylim = layer_scales(qdots)$y$range$range,
+  ) +
+  labs(x = "", y = "")
+
+hist_plot
+```
+
+```{r}
+#| label: pit_ecdf_bounds
+n_eval <- n
+ecdf_difference_limits <-
+  bayesplot:::ecdf_intervals(
+    gamma = bayesplot:::adjust_gamma(N = n, K = n_eval, prob = .95, TRUE),
+    N = n,
+    K = n_eval
+  )
+
+x0 <- 1:n_eval / n_eval
+```
+
+
+Goodness-of-fit evaluation reveals that the misrepresentation is large enough to alert us of goodness-of-fit issues.
+```{r}
+#| label: 02_02_step_histogram_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+ecdf_hist <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = ecdf_difference_limits$lower[-1] / n - x0)) +
+  geom_step(aes(y = ecdf_difference_limits$upper[-1] / n - x0)) +
+  geom_step(aes(
+    y = ecdf(pit_from_hist(hist_plot, x, bw = bw_hist, 1))(x0) - x0
+  ), color = paper_colors["mid"], linewidth = 1) +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 6.5) +
+  labs(x = "", y = "")
+
+ecdf_hist
+```
+
+
+## Density plot
+
+Lastly, we visualize the same sample with KDE density plots using two alternative bandwidth selection methods.
+
+```{r}
+#| label: 02_02_step_kde_visualisation
+#| fig-width: 10
+#| fig-height: 3
+kde_plot <- ggplot() +
+  true_density +
+  stat_slab(
+    aes(x = x, colour = "Silverman's rule of thumb"),
+    density = \(
+      x,
+      weights = NULL,
+      n = 512,
+      adjust = 1,
+      kernel = "gaussian",
+      trim = FALSE,
+      adapt = 1,
+      na.rm = FALSE,
+      ...,
+      range_only = FALSE
+    ) density_unbounded(
+      x,
+      weights = weights,
+      n = n,
+      bandwidth = "nrd0",
+      adjust = adjust,
+      kernel = kernel,
+      trim = trim,
+      adapt = adapt,
+      na.rm = na.rm,
+      ...,
+      range_only = range_only
+    ),
+    fill = NA,
+    normalize = "none",
+    scale = 1,
+    linewidth = 1
+  ) +
+  stat_slab(
+    aes(x = x, colour = "SJ"),
+    density = "unbounded",
+    fill = NA,
+    normalize = "none",
+    scale = 1,
+    linewidth = 1
+  ) +
+  labs(color = "") +
+  scale_color_manual(
+    values = unname(paper_colors[c("orange", "mid")])
+  ) +
+  xlim(layer_scales(qdots)$x$range$range) +
+  ylim(layer_scales(qdots)$y$range$range)
+
+kde_plot
+```
+
+The PIT ECDF reveals that the KDE using Silverman's rule of thumb has considerable goodness-of-fit issues and fails to fit to the discontinuity in the density.  
+```{r}
+#| label: 02_02_step_kde_ecdf_diff
+#| fig-width: 5
+#| fig-height: 3
+ecdf_kde <- ggplot(mapping = aes(x = x0)) +
+  geom_step(aes(y = (ecdf_difference_limits$lower[-1] - 1:n) / n)) +
+  geom_step(aes(y = (ecdf_difference_limits$upper[-1] - 1:n) / n)) +
+  geom_step(aes(
+    y = ecdf(pit_from_densityplot(kde_plot, 2, x, T))(x0) - x0,
+    colour = "Silverman's rule of thumb"
+  ),
+  linewidth = 1
+  ) +
+  geom_step(aes(
+    y = ecdf(pit_from_densityplot(kde_plot, 3, x, T))(x0) - x0,
+    colour = "SJ"
+  ),
+  linewidth = 1
+) +
+  scale_colour_discrete(
+    limits = c(
+      "Bound detection",
+      "SJ",
+      "Known bounds",
+      "Silverman's rule of thumb"
+    ),
+    breaks = c("SJ", "Silverman's rule of thumb")
+  ) +
+  labs(colour = "") +
+  scale_color_manual(
+    values = unname(paper_colors[c("orange", "mid")])
+  ) +
+  scale_y_continuous(breaks = c(-0.05, 0, 0.05)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  coord_fixed(ratio = 5)
+
+ecdf_kde
+```

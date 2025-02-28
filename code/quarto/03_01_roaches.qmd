@@ -1,0 +1,555 @@
+---
+title: "Visual predictive checking for count data and binary events"
+author: "Teemu Säilynoja"
+date: "2023-01-19"
+date-modified: last-modified
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+    code-line-numbers: true
+    default-image-extension: png
+    fig-format: png
+    embed-resources: true
+knitr:
+  opts_chunk:
+    fig.path: ../../images/
+    dev.args:
+      bg: transparent
+execute:
+  cache: true
+---
+
+```{r}
+#| label: imports_and_setup
+library(ggplot2)
+library(ggdist)
+library(bayesplot)
+library(patchwork)
+library(cmdstanr)
+library(rstanarm)
+library(dplyr)
+
+source("code/R/helpers.R")
+source("code/R/helpers_qdotplot.R")
+source("code/R/helpers_kde.R")
+source("code/R/helpers_histogram.R")
+source("code/R/helpers_rootogram.R")
+source("code/R/pava_plots.R")
+
+theme_set(ppc_paper_theme() +
+  theme(
+    axis.title = element_blank(),
+    legend.position = "none",
+    axis.ticks.y = element_blank(),
+    axis.text.y = element_blank()
+  ))
+bayesplot_theme_set(ppc_paper_theme() +
+  theme(
+    axis.title = element_blank(),
+    legend.position = "none",
+    axis.ticks.y = element_blank(),
+    axis.text.y = element_blank()
+  ))
+
+color_scheme_set(unname(paper_colors[1:6]))
+
+SEED = 9865875
+set.seed(SEED)
+```
+
+```{r}
+#| label: data_import
+data(roaches)
+# Roach1 is very skewed and we take a square root
+roaches$sqrt_roach1 <- sqrt(roaches$roach1)
+n <- length(roaches$y)
+```
+
+## Model
+
+We model the data with a generalized linear model with negative binomial observation model.
+
+```{r}
+#| label: model_fit
+stan_glmnb <-
+  stan_glm(
+    y ~ sqrt_roach1 + treatment + senior,
+    offset = log(exposure2),
+    data = roaches,
+    family = neg_binomial_2,
+    prior = normal(0, 2.5),
+    prior_intercept = normal(0, 5),
+    chains = 4,
+    cores = 1,
+    seed = SEED,
+    refresh = 0
+  )
+```
+
+## Posterior predictive checking with KDE density plots
+
+When looking at the visual PPC using KDE plots, we notice a spike close to zero, which causes
+suspicion of goodness-of-fit issues.
+
+```{r}
+#| label: 03_01_unbounded_kde
+#| message: false
+p1 <-
+  pp_check(stan_glmnb,
+           "ppc_dens_overlay",
+           trim = T) +
+  # geom_density(
+  #   data = roaches,
+  #   aes(x = y),
+  #   bounds = c(0, Inf),
+  #   colour = "red",
+  #   trim = T
+  # ) +
+  scale_x_sqrt(breaks = c(0, 1, 100, 200, 300, 400, 500)) +
+  coord_cartesian(xlim = c(0, 1.5 * max(roaches$y)), expand = FALSE) +
+  theme(axis.text.y = element_text(), axis.ticks.y = element_line())
+p1
+```
+
+
+As suspected, the PIT-ECDF check below shows noticeable discrepancy with the small PIT values.
+
+```{r}
+#| label: 03_01_unbounded_kde_pit_ecdf
+ppc_pit_ecdf(pit = pit_from_densityplot(p1, 2, x = sqrt(roaches$y), ggdist_layer = F))
+```
+
+The above KDE uses the default bandwidth selection of `bayesplot`, and doesn't take into account
+that the counts are bounded to be non-negative. When we use a bounded KDE with the Sheather-Jones
+bandwidth selection algorithm, the spike at zero increases in height.
+
+```{r}
+#| label: 03_01_bounded_kde_bounded
+
+p2 <- data.frame(name = "y", value = roaches$y) |>
+  rbind(data.frame(t(posterior_predict(stan_glmnb, draws = 50))) |>
+          tidyr::pivot_longer(everything())) |>
+  ggplot() +
+  stat_slab(
+    aes(x = value, height = max(after_stat(pdf)), group = name,
+        color = I(ifelse(name == "y", "black", color_scheme_get()$light_highlight)),
+        alpha = I(ifelse(name == "y", 0, .7)),
+        linewidth = I(ifelse(name == "y", 1, .25))),
+    scale = 1,
+    normalize = "none",
+    fill = NA,
+    density = density_bounded(bandwidth = "SJ")
+  ) +
+  stat_slab(
+    aes(x = value, height = max(after_stat(pdf)), group = name,
+        color = I(ifelse(name == "y", "black", color_scheme_get()$light_highlight)),
+        alpha = I(ifelse(name == "y", 1, 0)),
+        linewidth = I(ifelse(name == "y", 1, .5))),
+    scale = 1,
+    normalize = "none",
+    fill = NA,
+    density = density_bounded(bandwidth = "SJ")
+  ) +
+  scale_x_sqrt(breaks = c(0, 1, 100, 200, 300, 400, 500)) +
+  coord_cartesian(xlim = c(0, 1.5 * max(roaches$y)), expand = F) +
+  xlab("") +
+  ylab("") +
+  NULL
+
+p2
+```
+
+This new KDE results in a better fit to data. The discrepancy with the PIT-ECDF at values smaller
+than 0.4 is due to the zero observations all being assigned $\text{PIT} = 0$.
+
+```{r}
+#| label: 03_01_bounded_kde_bounded_pit_ecdf
+ld <- layer_data(p2, 1)
+ld <- ld[ld$colour == "black", ]
+ppc_pit_ecdf(pit = unlist(lapply(sqrt(roaches$y), function(x_i)  {
+    cubature::cubintegrate(approxfun(ld$x, ld$pdf, yleft = 0, yright = 0), lower = -Inf, upper = x_i, maxEval = 300)$integral
+  
+}))
+  )
+```
+
+
+## Rootogram
+
+Next, we visualize the data and predictions with rootograms. Below, the frequencies of the observed counts are displayed as bars, and the posterior predictions as a connected line surrounded by a band formed by connecting the point-wise 95% credible intervals. 
+```{r}
+#| label: md_rootogram_plain
+#| fig-path: "figures/"
+ppc_rootogram(roaches$y,
+               posterior_predict(stan_glmnb, draws = 500)) +
+  coord_cartesian(xlim = c(0,1.5 * max(roaches$y)))
+```
+
+When we limit the x-axis to the leftmost 90\% quantile, we have a clearer visual presentation of the
+bulk of the predictive distribution. It is hard to say, if there is any systematic miscalibration in
+the predictive draws of the model.
+
+```{r}
+#| label: 03_01_rootogram_plain_cut
+plain_cut <- ppc_rootogram(roaches$y,
+               posterior_predict(stan_glmnb, draws = 500)) +
+  coord_cartesian(xlim = c(0,quantile(roaches$y, .9)))
+
+plain_cut +
+  ppc_paper_theme(28) + theme(
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    legend.position = "none"
+    )
+
+plain_cut +
+  ppc_paper_theme() +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(),
+    axis.ticks.y = element_line(),
+    axis.title.x = element_blank()
+)
+  
+```
+
+We can emphasize the discreteness of the data by visualizing the frequencies of the observed and
+predicted counts through point intervals. Similarly to rootograms, we use a square root scaling on
+the y-axis to de-emphasize vertical space given to large counts. Aside from suggesting that our
+predictive distribution perhaps is too heavy tailed, the long sequence of $0$ and $1$ frequencies
+after observing $80$ roaches doesn't offer much information about the calibration of the
+predictions. Additionally, inspecting the predictive distribution for low counts would benefit from
+a more granular visualization.
+
+```{r}
+#| label: 03_01_rootogram_discrete_cut
+rooto_discrete(roaches$y,
+               posterior_predict(stan_glmnb, draws = 500),
+               max_count = quantile(roaches$y, .9),
+               sum_over_max = FALSE,
+               highlight_color = unname(paper_colors["orange"])) +
+  ppc_paper_theme() +
+  scale_y_sqrt(breaks = c(0, 2, 25, 50, 75, 100)) +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(),
+    axis.ticks.y = element_line(),
+    panel.grid.major.y = element_line(colour = "gray", linewidth = .2),
+    legend.margin=margin(t = -0.35, unit='cm')
+    )
+```
+
+Adding a summary of the observations of the large counts adds more diagnostic utility to the plot
+without complicating it much.
+
+```{r}
+#| label: md_rootogram_summary_cut
+#| fig-path: "figures/"
+rooto_discrete(roaches$y,
+               posterior_predict(stan_glmnb, draws = 500),
+               max_count = quantile(roaches$y, .9),
+               sum_over_max = TRUE,
+               highlight_color = unname(paper_colors["orange"]))
+```
+
+For reference, two alternative methods of visualizing the rootogram, focusing more on visual pattern recognition for detecting systematic error, are the hanging and suspended rootogram below.
+
+```{r}
+#| label: 03_01_rootogram_hanging_cut
+ppc_rootogram(roaches$y,
+              posterior_predict(stan_glmnb, draws = 500),
+              style = "hanging") +
+  coord_cartesian(xlim = c(0,quantile(roaches$y, .9))) +
+  ppc_paper_theme(28) +
+  theme(
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    legend.position = "none"
+    )
+```
+
+```{r}
+#| label: 03_01_rootogram_suspended_cut
+ppc_rootogram(roaches$y,
+              posterior_predict(stan_glmnb, draws = 500),
+              style = "suspended") +
+  coord_cartesian(xlim = c(0,quantile(roaches$y, .9))) +
+  ppc_paper_theme(28) +
+  theme(
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    legend.position = "none"
+    )
+```
+
+
+## Calibration of zero predictions
+
+Next, we move to inspecting calibration of a binary prediction --- whether any roaches are observed.
+The examples below are presented in Section 4 of the article.
+
+A very basic, and often used visual summary of the predictions is the bar graph. Below, the observations are displayed as bars, and the posterior predictions are overlaid as point intervals showing the mean predictive frequency and its 95% credible interval.  
+
+```{r}
+#| label: 03_01_ppc_bars-triple
+pp <- pmin(posterior_predict(stan_glmnb),1)
+ppc_bars(as.numeric(roaches$y > 0),
+         pp) +
+  scale_x_continuous(breaks = c(0, 1), labels = c("0", "1+")) +
+  ppc_paper_theme() +
+  theme(
+    legend.position = "none"
+  )
+```
+```{r}
+#| label: 03_01_ppc_bars
+#| fig-width: 5
+#| fig-height: 5
+pp <- pmin(posterior_predict(stan_glmnb),1)
+ppc_bars(as.numeric(roaches$y > 0),
+         pp) +
+  scale_x_continuous(breaks = c(0, 1), labels = c("0", "1+")) +
+  ppc_paper_theme() +
+  theme(
+    legend.position = "none"
+  )
+```
+
+This visualization is often used, but only offers information on the frequency of the class predictions.
+We can compare the above plot to a bar graph for a simple intercept-only model. When comparing the negative binomial model from above, to the intercept-only model, we cannot really tell the models apart with the bar graphs. The visualization only displays the overall frequency of the two classes.
+$$
+p(y_i \geq 1) = p \text{, for all } i\in \{1,\dots,N\}.
+$$
+
+```{r}
+#| label: intercept_only_model
+library(brms)
+intercept_only_fit <- brm(
+  y ~ 1,
+  data = data.frame(y = pmin(1, roaches$y)),
+  family = "bernoulli",
+  backend = "cmdstanr",
+  refresh = 0,
+  cores = 4)
+```
+
+```{r}
+#| label: 03_01_ppc_bars_intercept_only
+#| fig-width: 5
+#| fig-height: 5
+pp_check(intercept_only_fit, "bars", ndraw = 4000) +
+  scale_x_continuous(breaks = c(0, 1), labels = c("0", "1+")) +
+  ppc_paper_theme() +
+  theme(
+    legend.position = "none"
+  )
+```
+
+A common visualization used, for example on the fields of medicine and machine learning is the
+binned calibration plot, shown below. This suffers from possible artefacts caused by the ad-hoc
+decision of binning, but is already more expressive of the predictive calibration, and can clearly
+point out the problems with the intercept only model. 
+
+```{r}
+#| label: 03_01_binned_calibration_plot
+ep <- colMeans(pp)
+ggplot(caret::calibration(
+  y ~ pmean,
+  data = data.frame(y = as.factor(pmin(roaches$y, 1)),
+                    pmean = ep),
+  cuts = 15,
+  class = "1"
+)$data |> dplyr::filter(Count > 0), aes(x = midpoint / 100, y = Percent / 100)) +
+  geom_abline(slope = 1, intercept = 0, col = "black", lty = 2, alpha = .3) +
+  geom_point(color = paper_colors["dark_highlight"]) +
+  geom_errorbar(aes(ymin = Lower / 100, ymax = Upper / 100), width = .02, color = paper_colors["dark"]) +
+  labs(
+    x = "Predicted probability",
+    y = "Observed rate"
+  ) +
+  coord_equal(xlim = c(0,1.02), ylim = c(0,1.02), expand = FALSE) +
+  ppc_paper_theme() +
+  theme(
+    panel.grid = element_line(colour = "gray", linewidth = .2)
+  )
+```
+
+```{r}
+#| label: 03_01_binned_calibration_plot_intercept_only
+ggplot(caret::calibration(
+  y ~ p,
+  data = data.frame(y = as.factor(pmin(roaches$y, 1)),
+                    p = colMeans(posterior_epred(intercept_only_fit))),
+  cuts = 15,
+  class = "1"
+)$data |> dplyr::filter(Count > 0), aes(x = midpoint / 100, y = Percent / 100)) +
+  geom_abline(slope = 1, intercept = 0, col = "black", lty = 2, alpha = .3) +
+  geom_point(color = paper_colors["dark_highlight"]) +
+  geom_errorbar(aes(ymin = Lower / 100, ymax = Upper / 100), width = .02, color = paper_colors["dark"]) +
+  labs(
+    x = "Predicted probability",
+    y = "Observed rate"
+  ) +
+  coord_equal(xlim = c(0,1.02), ylim = c(0,1.02), expand = FALSE) +
+  ppc_paper_theme() +
+  theme(
+    panel.grid = element_line(colour = "gray", linewidth = .2)
+  )
+```
+
+A more advanced plot is the pool-adjacent-violators (PAV) adjusted calibration plot, sometimes also called a reliability diagram. The PAV-adjusted calibration plot is a non-parametric alternative to the binned calibration plot, which avoids the artefacts caused by the binning choice. The PAV algorithm replaces the raw binary observations with probabilities that are monotonic with respect to the predicted event probabilities. A natural assumption for a calibrated model is that these conditional event probabilities (CEPs) would be increasing as the predicted probability increases.
+
+From the PAV-calibration plot we see that the negative binomial model is under confident in its predicted probabilities for the case of not observing roaches.
+```{r}
+#| label: 03_01_pava_calibration
+
+ppc_calibration_pava(
+  y = pmin(roaches$y, 1),
+  yrep = pp,
+  fill_alpha = .4,
+  cep_line_color = paper_colors["orange"]
+) + 
+  ppc_paper_theme() +
+  theme(
+    panel.grid = theme_minimal()$panel.grid
+  )
+```
+
+Next we compare the model to a zero-inflated negative binomial model, where the probability of not observing any roaches is modelled separately.
+
+```{r}
+#| label: zero-inflated-neg-binom-model
+brm_glmzinb <-
+  brm(bf(y ~ sqrt_roach1 + treatment + senior + offset(log(exposure2)),
+         zi ~ sqrt_roach1 + treatment + senior + offset(log(exposure2))),
+      family = zero_inflated_negbinomial(),
+      data = roaches,
+      prior = c(prior(normal(0,3), class = 'b'),
+              prior(normal(0,3), class = 'b', dpar = 'zi'),
+              prior(normal(0,3), class = 'Intercept', dpar = 'zi')),
+      seed = SEED,
+      refresh = 0)
+```
+
+In the PAV-calibration plot we see that the predictions of the zero-inflated model are better calibrated and the model is better able to separate the two classes.
+```{r}
+#| label: 03_01_pava_calibration_zi
+
+ppc_calibration_pava(
+  y = pmin(roaches$y, 1),
+  yrep = apply(posterior_predict(brm_glmzinb), 2, pmin, 1),
+  fill_alpha = .4,
+  cep_line_color = paper_colors["orange"]
+) + 
+  ppc_paper_theme() +
+  theme(
+    panel.grid = theme_minimal()$panel.grid
+  )
+```
+
+### Residual plots
+
+Finally, let us assess the calibration of the predictions with respect to one of the covariates used in the models. To this end, we first use the binned residual plot, dividing the observations to 14 bins based on the covariate value and then displaying the average error and its credible intervals for the predictions within that bin.
+
+When comparing the two binned residual plots, we see that the predictions of the zero-inflated model are on average closer to the zero line. Many of the mean predictive errors for the simpler models are close to the upper end of the credible intervals.
+
+```{r}
+#| label: 03_01_binned_residual
+pr1 <- ppc_error_binned(
+  y = pmin(roaches$y,1),
+  yrep = matrix(colMeans(pp), nrow = 1),
+  x = sqrt(roaches$roach1),
+  bins = 14,
+  alpha = 1,
+  interval_type = "errorbar"
+) +
+  ppc_paper_theme() +
+  scale_x_continuous(breaks = sqrt(c(0,50, 100,200,300)), labels = c(0,50, 100,200,300)) +
+  labs(x = "Baseline roach count") +
+  theme(legend.position = "none")
+
+pr1
+```
+
+```{r}
+#| label: 03_01_pava_residual
+# library(reliabilitydiag)
+pr2 <- ppc_residual_pava(
+  y = pmin(roaches$y, 1),
+  x = roaches$roach1,
+  yrep = pp,
+  fill_alpha = .4,
+  cep_color = paper_colors["orange"]
+) +
+  ppc_paper_theme() +
+  theme(legend.position = "none") +
+  labs(y = "PAVA residual", x = "Baseline roach count") +
+  scale_x_sqrt()
+
+pr2
+```
+
+Next, we make a residual plot using the CEPs obtained through the PAV-algorithm. This avoids the need for binning and by reusing the point-wise consistency bands of the PAV-calibration plot, we can assess the calibration of each prediction. Now we see clearly, that the simpler model is overestimating the probability of observing roaches for the cases with low baseline roach count, but then underestimates the probability of observing roaches for medium baseline roach levels. 
+```{r}
+#| label: 03_01_binned_residual_zi
+przi1 <- ppc_error_binned(
+  y = pmin(roaches$y,1),
+  yrep = matrix(colMeans(apply(posterior_predict(brm_glmzinb), 2, pmin, 1)), nrow = 1),
+  x = sqrt(roaches$roach1),
+  bins = 14,
+  alpha = 1,
+  interval_type = "errorbar"
+) +
+  ppc_paper_theme() +
+  scale_x_continuous(breaks = sqrt(c(0,50, 100,200,300)), labels = c(0,50, 100,200,300)) +
+  labs(x = "Baseline roach count") +
+  theme(legend.position = "none")
+
+przi1
+```
+
+```{r}
+#| label: 03_01_pava_residual_zi
+przi2 <- ppc_residual_pava(
+  y = pmin(roaches$y, 1),
+  x = roaches$roach1,
+  yrep = apply(posterior_predict(brm_glmzinb), 2, pmin, 1),
+  fill_alpha = .4,
+  cep_color = paper_colors["orange"]
+) +
+  ppc_paper_theme() +
+  theme(legend.position = "none") +
+  labs(y = "PAVA residual", x = "Baseline roach count") +
+  scale_x_sqrt()
+
+przi2
+```
+
+
+
+```{r}
+#| label: 03_01_residuals
+#| fig-width: 10
+pr1 + ppc_paper_theme(12) + theme(plot.margin = unit(c(0,30,0,0), "pt")) + pr2 + ppc_paper_theme(12) +
+plot_annotation(
+  title = "Negative binomial model",
+  theme = ppc_paper_theme(12)
+)
+```
+
+
+
+```{r}
+#| label: 03_01_residuals_zi
+#| fig-width: 10
+przi1 + ppc_paper_theme(12) + theme(plot.margin = unit(c(0,30,0,0), "pt")) + przi2 + ppc_paper_theme(12) +
+plot_annotation(
+  title = "Zero-inflated model",
+  theme = ppc_paper_theme(12)
+)
+```

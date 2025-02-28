@@ -1,0 +1,199 @@
+---
+title: "PPC Visualizations for Categorical Data"
+date: "2023-05-30"
+date-modified: last-modified
+author: "Teemu Säilynoja"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+    code-line-numbers: true
+    default-image-extension: png
+    fig-format: png
+    embed-resources: true
+knitr:
+  opts_chunk:
+    fig.path: ../../images/
+    dev.args:
+      bg: transparent
+execute:
+  cache: true
+---
+
+This notebook reproduces and expands on the examples of predictive checks for categorical data, shown in Section 5 of the article.
+```{r}
+#| label: imports & setup
+library(ggplot2)
+library(bayesplot)
+library(caret)
+
+source("code/R/helpers.R")
+source("code/R/helpers_kde.R")
+source("code/R/pava_plots.R")
+
+SEED <- 2451
+set.seed(SEED)
+
+theme_set(
+  ppc_paper_theme() +
+  theme(
+    panel.grid = theme_minimal()$panel.grid
+  )
+)
+
+bayesplot_theme_set(ppc_paper_theme())
+```
+
+We create 500 observations where each observation has independent uniform weights for belonging to each class and then normalize these to obtain class probabilities. We add a 30% chance of switching the probabilities of classes B and C in the process, to induce confusion between the observations and the predictive probabilities.
+
+We then draw predictive samples using the normalized class weights without confusion.
+```{r}
+#| label: data simulation
+#| 
+n_obs <- 500
+probs <-
+  matrix(runif(3 * n_obs),
+         ncol = 3,
+         dimnames = list(NULL, c("pA", "pB", "pC")))
+probs <- data.frame(probs / rowSums(probs))
+
+with(probs,
+  y <<- as.factor(sapply(1:n_obs,
+    function(idx) {
+      
+      sample(c("A", "B", "C"),
+             size = 1,
+             # We confuse B and C.
+             prob = c(pA[idx], pB[idx], pC[idx])[c(1, 1 + sample.int(2,prob = c(.7,.3)))]
+             )
+  }))
+)
+yrep <- t(replicate(100,
+                   with(probs,
+  as.factor(sapply(1:n_obs,
+    function(idx) {
+      sample(c("A", "B", "C"),
+             size = 1,
+             prob = c(pA[idx], pB[idx], pC[idx])
+             )
+  }))
+)))
+```
+
+In the bar graph, we can't tell if there is anything wrong with the predictions.
+```{r}
+#| label: 4_2_categorical_ppc_bars
+ppc_bars(
+  as.integer(y),
+  matrix(as.integer(as.factor(yrep)), ncol = ncol(yrep)),
+  freq = FALSE) +
+  scale_x_continuous(breaks = 1:3, labels = c("A", "B", "C")) +
+  theme(legend.position = "none")
+```
+
+We then proceed to make one-vs-others binned calibration and PAV-calibration plots for the predictions.
+
+For A, everything looks fine.
+```{r}
+#| label: 4_2_categorical_AvsAll
+ggplot(calibration(
+  y ~ prob,
+  data = data.frame(prob = probs$pA, y = y),
+  cuts = 10,
+  class = "A"
+)$data |> dplyr::filter(Count > 0), aes(x = midpoint / 100, y = Percent / 100)) +
+  geom_abline(slope = 1, intercept = 0, col = "black", lty = 2, alpha = .3) +
+  geom_point(color = paper_colors["dark_highlight"]) +
+  geom_errorbar(aes(ymin = Lower / 100, ymax = Upper / 100), width = .02, color = paper_colors["dark"]) +
+  labs(
+    x = "Predicted probability",
+    y = "Observed rate",
+    title = "A vs. others"
+  ) +
+  coord_equal(xlim = c(0,1.02), ylim = c(0,1.02), expand = FALSE) +
+  ppc_paper_theme() +
+  theme(
+    panel.grid = theme_minimal()$panel.grid
+  )
+
+with(probs, {
+  ppc_calibration_pava(
+    y = as.numeric(y == "A"),
+    p = pA,
+    fill_alpha = .4,
+    cep_line_color = paper_colors["orange"]) +
+        labs(title = "A vs. others")
+}
+)
+```
+
+For B and C below, we clearly see the confusion in the predictions.
+```{r}
+#| label: 4_2_categorical_BvsAll
+ggplot(calibration(
+  y ~ prob,
+  data = data.frame(prob = probs$pB, y = y),
+  cuts = 10,
+  class = "B"
+)$data |> dplyr::filter(Count > 0), aes(x = midpoint / 100, y = Percent / 100)) +
+  geom_abline(slope = 1, intercept = 0, col = "black", lty = 2, alpha = .3) +
+  geom_point(color = paper_colors["dark_highlight"]) +
+  geom_errorbar(aes(ymin = Lower / 100, ymax = Upper / 100), width = .02, color = paper_colors["dark"]) +
+  labs(
+    x = "Predicted probability",
+    y = "Observed rate",
+    title = "B vs. others"
+  ) +
+  coord_equal(xlim = c(0,1.02), ylim = c(0,1.02), expand = FALSE) +
+  ppc_paper_theme() +
+  theme(
+    panel.grid = theme_minimal()$panel.grid
+  )
+
+with(probs, {
+  ppc_calibration_pava(
+    y = as.numeric(y == "B"),
+    p = pB,
+    fill_alpha = .4,
+    cep_line_color = paper_colors["orange"]) +
+    labs(
+      title = "B vs. others"
+    )
+})
+```
+
+```{r}
+#| label: 4_2_categorical_CvsAll
+ggplot(calibration(
+  y ~ prob,
+  data = data.frame(prob = probs$pC, y = y),
+  cuts = 10,
+  class = "C"
+)$data |> dplyr::filter(Count > 0), aes(x = midpoint / 100, y = Percent / 100)) +
+  geom_abline(slope = 1, intercept = 0, col = "black", lty = 2, alpha = .3) +
+  geom_point(color = paper_colors["dark_highlight"]) +
+  geom_errorbar(aes(ymin = Lower / 100, ymax = Upper / 100), width = .02, color = paper_colors["dark"]) +
+  labs(
+    x = "Predicted probability",
+    y = "Observed rate",
+    title = "C vs. others"
+  ) +
+  coord_equal(xlim = c(0,1.02), ylim = c(0,1.02), expand = FALSE) +
+  ppc_paper_theme() +
+  theme(
+    panel.grid = theme_minimal()$panel.grid
+  )
+
+with(probs, {
+  ppc_calibration_pava(
+    y = as.numeric(y == "C"),
+    p = pC,
+    fill_alpha = .4,
+    cep_line_color = paper_colors["orange"]) +
+    labs(
+      title = "C vs. others"
+    )
+})
+```
+

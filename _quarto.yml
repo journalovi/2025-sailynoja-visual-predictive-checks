@@ -1,10 +1,26 @@
 project:
-  title: "jovi-template-quarto"
+  title: "visual-predictive-checking"
+  execute-dir: project
+  render:
+    - index.qmd
 
 format:
   html:
     theme: lumen
     toc: true
+    embed-resources: true
+  pdf:
+    number-sections: True
+    documentclass: article
+    geometry:
+      - paper=a4paper
+      - left=25mm
+      - right=25mm
+      - top=15mm
+      - bottom=20mm
+
+    template-partials:
+      - title.tex
 
 number-sections: true
 number-depth: 2
