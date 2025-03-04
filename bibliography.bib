@@ -86,7 +86,7 @@ URL = {https://doi.org/10.1214/23-STS907}
 }
 
 @book{wickham_ggplot2_2016,
-	title = {ggplot2: Elegant Graphics for Data Analysis},
+	title = {{ggplot2}: Elegant Graphics for Data Analysis},
 	isbn = {978-3-319-24277-4},
 	publisher = {Springer-Verlag New York},
 	author = {Wickham, Hadley},
@@ -178,8 +178,8 @@ URL = {https://doi.org/10.1214/23-STS907}
 	pages = {641--647},
 }
 
-@misc{kay_ggdist_2023,
-	title = {ggdist: Visualizations of Distributions and Uncertainty},
+@misc{package_ggdist,
+	title = {{ggdist}: Visualizations of Distributions and Uncertainty},
 	copyright = {Open Access},
 	shorttitle = {ggdist},
 	url = {https://mjskay.github.io/ggdist/},
@@ -190,8 +190,20 @@ URL = {https://doi.org/10.1214/23-STS907}
 	doi = {10.5281/zenodo.3879620},
 }
 
+@Article{kay_ggdist_2023,
+    author = {Matthew Kay},
+    title = {{ggdist}: Visualizations of Distributions and Uncertainty in the Grammar of Graphics},
+    journal = {IEEE Transactions on Visualization and Computer Graphics},
+    year = {2024},
+    volume = {30},
+    number = {1},
+    pages = {414--424},
+    doi = {10.1109/TVCG.2023.3327195},
+  }
+
+
 @article{kleiber_visualizing_2016,
-	title = {Visualizing {Count} {Data} {Regressions} {Using} {Rootograms}},
+	title = {Visualizing Count Data Regressions Using Rootograms},
 	volume = {70},
 	issn = {0003-1305, 1537-2731},
 	url = {https://www.tandfonline.com/doi/full/10.1080/00031305.2016.1173590},
@@ -242,7 +254,7 @@ URL = {https://doi.org/10.1214/23-STS907}
 }
 
 @article{liu_statistical_2019,
-	title = {Statistical {Analysis} of {Zero}-{Inflated} {Nonnegative} {Continuous} {Data}: {A} {Review}},
+	title = {Statistical Analysis of Zero-Inflated Nonnegative Continuous Data: A Review},
 	volume = {34},
 	issn = {0883-4237, 2168-8745},
 	shorttitle = {Statistical {Analysis} of {Zero}-{Inflated} {Nonnegative} {Continuous} {Data}},
@@ -371,15 +383,6 @@ URL = {https://doi.org/10.1214/23-STS907}
 	pages = {1143},
 }
 
-@misc{gabry_plotting_2022,
-  title = {bayesplot: Plotting for {Bayesian} Models},
-  author = {Jonah Gabry and Tristan Mahr},
-  year = {2024},
-  note = {R package version 1.11.0},
-  url = {https://mc-stan.org/bayesplot/},
-	doi= {10.32614/CRAN.package.bayesplot},
-}
-
 @article{dimitriadis_stable_2021,
 	title = {Stable reliability diagrams for probabilistic classifiers},
 	volume = {118},
@@ -420,7 +423,7 @@ arXiv: 1709.01449},
 }
 
 @article{gelman_bayesian_2020,
-	title = {Bayesian {Workflow}},
+	title = {Bayesian Workflow},
 	url = {http://arxiv.org/abs/2011.01808},
 	abstract = {The Bayesian approach to data analysis provides a powerful way to handle uncertainty in all observations, model parameters, and model structure using probability theory. Probabilistic programming languages make it easier to specify and fit Bayesian models, but this still leaves us with many options regarding constructing, evaluating, and using these models, along with many remaining challenges in computation. Using Bayesian inference to solve real-world problems requires not only statistical skills, subject matter knowledge, and programming, but also awareness of the decisions made in the process of data analysis. All of these aspects can be understood as part of a tangled workflow of applied Bayesian statistics. Beyond inference, the workflow also includes iterative model building, model checking, validation and troubleshooting of computational problems, model understanding, and model comparison. We review all these aspects of workflow in the context of several examples, keeping in mind that in practice we will be fitting many models for any given problem, even if only a subset of them will ultimately be relevant for our conclusions.},
 	urldate = {2020-11-04},
@@ -434,7 +437,7 @@ arXiv: 1709.01449},
 
 @inproceedings{kay_when_2016,
 	address = {San Jose California USA},
-	title = {When (ish) is {My} {Bus}?: {User}-centered {Visualizations} of {Uncertainty} in {Everyday}, {Mobile} {Predictive} {Systems}},
+	title = {When (ish) is My Bus?: User-centered Visualizations of Uncertainty in Everyday, Mobile Predictive Systems},
 	isbn = {978-1-4503-3362-7},
 	shorttitle = {When (ish) is {My} {Bus}?},
 	url = {https://dl.acm.org/doi/10.1145/2858036.2858558},
@@ -476,8 +479,9 @@ arXiv: 1709.01449},
 	year = {1996},
 	pages = {733--760},
 }
+
 @Manual{package_cubature,
-    title = {cubature: Adaptive Multivariate Integration over Hypercubes},
+    title = {{cubature}: Adaptive Multivariate Integration over Hypercubes},
     author = {Balasubramanian Narasimhan and Steven G. Johnson and Thomas Hahn and Annie Bouvier and Kiên Kiêu},
     year = {2024},
     note = {R package version 2.1.1},
@@ -497,7 +501,7 @@ arXiv: 1709.01449},
   }
 
   @Manual{package_iso,
-    title = {Iso: Functions to Perform Isotonic Regression},
+    title = {{Iso}: Functions to Perform Isotonic Regression},
     author = {Rolf Turner},
     year = {2023},
     note = {R package version 0.0-21},
@@ -544,7 +548,9 @@ arXiv: 1709.01449},
     doi = {10.18637/jss.v100.i05},
     encoding = {UTF-8},
   }
-  @Manual{package_cmdstanr,
+
+
+@Manual{package_cmdstanr,
   title = {{cmdstanr}: {R} Interface to {'CmdStan'}},
   author = {Jonah Gabry and Rok Češnovar and Andrew Johnson and Steve Bronder},
   year = {2024},
@@ -562,18 +568,18 @@ arXiv: 1709.01449},
    }
 
 @misc{standev2018stancore,
-	title = {{The Stan Core Library}},
-	author = {{Stan Development Team}},
+	title = {The {Stan} Core Library},
+	author = {{Stan} Development Team},
 	note = {Version 2.18.0},
 	year = {2018},
 	url = {http://mc-stan.org/},
 }
 
-@Misc{package_bayesplot,
-	title = {bayesplot: Plotting for Bayesian Models},
-	author = {Jonah Gabry and Tristan Mahr},
-	year = {2024},
-	note = {R package version 1.11.1},
-	url = {https://mc-stan.org/bayesplot/},
-	doi = {10.32614/CRAN.package.bayesplot},
+@misc{gabry_plotting_2022,
+  title = {{bayesplot}: Plotting for {Bayesian} Models},
+  author = {Jonah Gabry and Tristan Mahr},
+  year = {2024},
+  note = {R package version 1.11.0},
+  url = {https://mc-stan.org/bayesplot/},
+	doi= {10.32614/CRAN.package.bayesplot},
 }
