@@ -9,6 +9,8 @@ format:
     theme: lumen
     toc: true
     embed-resources: true
+    self-contained-math: true
+    html-math-method: katex
   pdf:
     number-sections: True
     documentclass: article
