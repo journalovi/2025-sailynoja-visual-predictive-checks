@@ -1,3 +1,13 @@
+```diff
+! This paper is under review on the experimental track of the Journal of Visualization and Interaction.
+Authors: @TeemuSailynoja
+OC: @mjskay
+AE: TBD
+R1: TBD
+R2: TBD
+R3: TBD
+```
+
 # Recommendations for visual predictive checks in Bayesian workflow
 
 This repository contains our paper introducing current practices in visual posterior (and prior)
