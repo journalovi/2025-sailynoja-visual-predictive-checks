@@ -2,7 +2,7 @@
 ! This paper is under review on the experimental track of the Journal of Visualization and Interaction.
 Authors: @TeemuSailynoja
 OC: @mjskay
-AE: TBD
+AE: @Fumeng-Yang
 R1: TBD
 R2: TBD
 R3: TBD
