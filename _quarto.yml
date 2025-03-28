@@ -9,6 +9,10 @@ format:
     theme: lumen
     toc: true
     embed-resources: true
+    citations-hover: false
+    footnotes-hover: false
+    crossrefs-hover: false
+
   pdf:
     number-sections: True
     documentclass: article
