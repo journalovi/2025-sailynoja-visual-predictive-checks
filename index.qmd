@@ -174,11 +174,11 @@ visualization and are the two most common choices for initial visual PPCs (@wick
 
 :::{#fig-intro-triplet layout-ncol=3}
 
-![Histogram](images/intro_histogram.png){#fig-intro-triplet-histogram}
+![Histogram](images/intro_histogram.png){#fig-intro-triplet-histogram fig-alt="A histogram with 30 equally spaced bins showing a sample from normal distribution."}
 
-![KDE Density plot](images/intro_density.png){#fig-intro-triplet-kde}
+![KDE Density plot](images/intro_density.png){#fig-intro-triplet-kde fig-alt="A kernel density plot of a sample from normal distribution."}
 
-![Quantile dot plot](images/intro_qdot.png){#fig-intro-triplet-qdot}
+![Quantile dot plot](images/intro_qdot.png){#fig-intro-triplet-qdot fig-alt="A quantile dot plot of a sample from normal distribution. The plot shows 100 vertically stacked dots at the x-axis positions of their respective quantiles."}
 
 Three visualizations of the same sample from a smooth continuous distribution.
 a) Histogram with 30 equally spaced bins. 
@@ -387,13 +387,23 @@ modeling choices.
 
 ::: {#fig-true-densities layout-ncol="3"}
 
-![Density with steps](images/02_02_step_true_density-1.png){.plot #fig-true-step}
+![Density with steps](images/02_02_step_true_density-1.png){.plot #fig-true-step fig-alt="A continuous
+line representing density values. From x = -3 to x = -0.5, the density increases smoothly. At x =
+-0.5, the density drops sharply to a constant value, and increases again sharply at x = 0.5,
+continuing as a smoothly decreasing function from x = 0.5 to x = 2."}
 
-![Strictly bounded density](images/02_03_bounded_true_density-1.png){.plot #fig-true-bounded}
+![Strictly bounded density](images/02_03_bounded_true_density-1.png){.plot #fig-true-bounded
+fig-alt="Continuous line representing density values. Between x = 0.5 and x = 2.75, the density is
+smoothly decreasing. At the ends of this interval, the density drops sharply to zero, and stays at
+zero outside the interval."}
 
-![Density with a point mass](images/02_04_pointmass_true_density-1.png){.plot #fig-true-point-mass}
+![Density with a point mass](images/02_04_pointmass_true_density-1.png){.plot #fig-true-point-mass
+fig-alt="Continuous line representing the density of a normal distribution. At x = 1, a vertical
+line represents a point-mass in the density."}
 
-True densities for the examples used in @sec-density-function-with-steps, @sec-bounded-density, and @sec-point-mass. Each of these examples poses a challenge for KDE density plots and histograms, and avoiding misrepresenting the data requires special attention.
+True densities for the examples used in @sec-density-function-with-steps, @sec-bounded-density, and
+@sec-point-mass. Each of these examples poses a challenge for KDE density plots and histograms, and
+avoiding misrepresenting the data requires special attention.
 
 :::
 
@@ -416,13 +426,20 @@ the discreteness of the PIT ECDF of the quantile dot plot is visible.
 ::: {#fig-kde-continuous-unbounded layout-ncol="3"}
 
 ![KDE](images/02_01_continuous_kde_visualisation-1.png){.plot
-#fig-kde-continuous-unbounded-densityplot}
+#fig-kde-continuous-unbounded-densityplot fig-alt="Two smooth lines representing the true density
+and the KDE. The KDE closely matches the true density."}
 
 ![PIT ECDF](images/02_01_continuous_kde_ecdf_regular-1.png){.plot
-#fig-kde-continuous-unbounded-ecdf}
+#fig-kde-continuous-unbounded-ecdf fig-alt="A line graph showing the ECDF of the PIT values. The
+x-axis represents the PIT values and y-axis the ECDF values. Shown are three lines; the ECDF of the
+observation PIT values, and the upper and lower bounds of the simultaneous confidence intervals for
+uniform ECDF. The ECDF stays within the bounds."}
 
 ![PIT ECDF difference](images/02_01_continuous_kde_ecdf_diff-1.png){.plot
-#fig-kde-continuous-unbounded-ecdf-diff}
+#fig-kde-continuous-unbounded-ecdf-diff fig-alt="A line graph showing the PIT ECDF difference. The
+x-axis shows the PIT values and the y-axis the difference between the ECDF values and the expected
+value of the ECDF. The line for the ECDF difference stays within the lines representing the
+simultaneous confidence intervals."}
 
 Visualizing a sample from a smooth and unbounded density with a kernel density estimate.
 (a) the KDE of the sample in blue and the true density in black.
@@ -433,19 +450,28 @@ goodness-of-fit issues are indicated by the plot as the PIT ECDF stays within th
 :::
 
 ::: {#fig-histogram-continuous layout="[20,10]"}
-![](images/02_01_continuous_histogram_visualisation-1.png){.plot }
 
-![](images/02_01_continuous_histogram_ecdf_diff-1.png){.plot}
+![](images/02_01_continuous_histogram_visualisation-1.png){.plot fig-alt="An equally binned histogram
+of the observed values overlaid with the continuous true density. The histogram matches the curve of
+the true density well."}
 
+![](images/02_01_continuous_histogram_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT
+ECDF difference. The line for the ECDF difference stays within the lines of the simultaneous
+confidence intervals."}
 
 A histogram of the sample, with the smooth and unbounded true density overlaid in black. We use the rule by @freedman_histogram_1981 to determine the number of bins. The PIT ECDF difference plot indicates a good fit between the visualization and the sample.
 
 :::
 
 ::: {#fig-qdplot-continuous layout="[20,10]"}
-![](images/02_01_continuous_qdotplot_visualisation-1.png)
 
-![](images/02_01_continuous_ecdf_diff-1.png)
+![](images/02_01_continuous_qdotplot_visualisation-1.png){.plot fig-alt="A quantile dot plot with
+100 dots overlaid with a line showing the true density. Some dot stacks are one dot taller than the
+true density, but the shape of the quantile dot plot matches the true density well."}
+
+![](images/02_01_continuous_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. The line for the ECDF difference stays within the lines of the simultaneous confidence
+intervals."}
 
 The quantile dot plot and the true density overlaid in black. As with all quantile dot plots in this article, we show 100 quantiles. The PIT ECDF difference plot indicates a good fit between the visualization and the sample.
 
@@ -498,20 +524,33 @@ discontinuities don't cause issues to the goodness-of-fit.
 
 
 ::: {#fig-kde-step layout="[20,10]"}
-![](images/02_02_step_kde_visualisation-1.png){.plot}
 
-![](images/02_02_step_kde_ecdf_diff-1.png){.plot}
+![](images/02_02_step_kde_visualisation-1.png){.plot fig-alt="A
+line graph with two lines showing the continuous KDE values in red and blue. The KDE values are
+overlaid with the true density with steps in black. Near the steps, both KDEs divert from the true
+density, with the blue KDE line following the true density more closely."}
+
+![](images/02_02_step_kde_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. A red and a blue ECDF difference line are shown. Both have a distinct drop after PIT =
+0.5, but the blue line stays within the simultaneous confidence intervals, while the red line dips
+below the lower bound of the intervals."}
 
 Two kernel density plots for a continuous valued sample from a density with steps. In
 <span style="color:#E34D34;">red</span>, a KDE with the bandwidth selected with
 <span style="color:#E34D34;">Silverman's rule of thumb</span> [@silverman_density_1986], and in <span style="color:#6497b1;">blue</span> a KDE using the
 <span style="color:#6497b1;">Sheather-Jones</span> bandwidth selection method [@sheather_reliable_1991], which results to a smaller bandwidth and a better fit to the sample.  
+
 :::
 
 ::: {#fig-histogram-step layout="[20,10]"}
-![](images/02_02_step_histogram_visualisation-1.png){.plot}
 
-![](images/02_02_step_histogram_ecdf_diff-1.png){.plot}
+![](images/02_02_step_histogram_visualisation-1.png){.plot fig-alt="A histogram overlaid with the
+true density with steps. Near the second, taller step, the histogram bin starts slightly before the
+step and does not reach its top."}
+
+![](images/02_02_step_histogram_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. The line for the ECDF difference stays within the lines of the simultaneous confidence
+intervals, but has a distinct downwards dip after PIT = 0.5."}
 
 Visualizing the continuous valued sample from a density with steps with a histogram. Here, our bin
 width selection algorithm has resulted in an adequate fit to the data, although the local deviation
@@ -520,9 +559,14 @@ from the expected CDF is clearly visible in the PIT ECDF plot.
 :::
 
 ::: {#fig-qplot-step layout="[20,10]"}
-![](images/02_02_step_qdotplot_visualisation-1.png){.plot}
 
-![](images/02_02_step_qdotplot_ecdf_diff-1.png){.plot}
+![](images/02_02_step_qdotplot_visualisation-1.png){.plot fig-alt="A quantile dot plot with 100 dots
+overlaid with a line graph of the true step density values. The quantile dot plot faithfully shows
+the steps of the true density."}
+
+![](images/02_02_step_qdotplot_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. The line for the ECDF difference stays within the lines of the simultaneous confidence
+intervals."}
 
 Visualizing the continuous valued sample from a density with steps with a quantile dot plot. The
 larger step is clearly visible, and PIT ECDF plot stays within the simultaneous confidence
@@ -564,9 +608,16 @@ satisfactory.
 
 
 ::: {#fig-kde-bounds layout="[20,10]"}
-![](images/02_03_bounded_kde_visualisation-1.png){.plot}
 
-![](images/02_03_bounded_kde_ecdf_diff-1.png){.plot}
+![](images/02_03_bounded_kde_visualisation-1.png){.plot fig-alt="A line graph where two colored
+lines show KDE values in red and blue. The KDE values are overlaid with the true bounded density in
+black. Near the bounds, both KDEs divert from the true density, with the red line following the true
+density more closely. Far from the bounds, the KDEs agree and the lines are indistinguishable.
+Within the bounds, both KDEs follow the downwards trend of the true density."}
+
+![](images/02_03_bounded_kde_ecdf_diff-1.png){.plot fig-alt="A line graph showing two PIT ECDF
+differences. The red line for the ECDF difference stays within the bounds of the simultaneous
+confidence intervals while the blue line exceeds the upper bound near PIT = 0 and PIT = 1."}
 
 Two kernel density plots for a continuous valued sample from a bounded density.
 In <span style="color:#E34D34;">red</span>, a KDE using a <span style="color:#E34D34;">boundary correction</span> and automated boundary detection as implemented in the ggdist package for R [@kay_ggdist_2023].
@@ -575,18 +626,30 @@ Again, the misrepresentation of the sample close to the distribution boundaries 
 :::
 
 ::: {#fig-histogram-bounds layout="[20,10]"}
-![](images/02_03_bounded_histogram_visualisation-1.png){.plot}
 
-![](images/02_03_bounded_histogram_ecdf_diff-1.png){.plot}
+![](images/02_03_bounded_histogram_visualisation-1.png){.plot fig-alt="A histogram overlaid with a
+line graph of the true bounded density. The first bin of the histogram starts before the lower bound
+of the density, and the last bin end after the upper bound of the density. Within the bounds, the
+histogram follows the downwards trend of the true density."}
+
+![](images/02_03_bounded_histogram_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. At PIT = 0, the ECDF difference line dips below the lower bound of the simultaneous
+confidence intervals."}
 
 Visualizing the continuous valued sample from a bounded density with a histogram. The PIT ECDF line crosses the simultaneous confidence bands at the extreme PIT values, indicating issues in representing the boundaries of the data distribution. The drop in the PIT ECDF close to zero indicates underestimation of the left bound of the distribution, and respectively, the smaller upwards peak close to one indicates over estimation of the right bound.
 
 :::
 
 ::: {#fig-qplot-bounds layout="[20,10]"}
-![](images/02_03_bounded_qdotplot_visualisation-1.png){.plot}
 
-![](images/02_03_bounded_ecdf_diff-1.png){.plot}
+![](images/02_03_bounded_qdotplot_visualisation-1.png){.plot fig-alt="A quantile dot plot with 100
+dots overlaid with a line graph of the true bounded density. The quantile dot plot accurately places
+the dots within the bounds of the true density and follows the downwards trend of the density."}
+
+![](images/02_03_bounded_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. Near PIT = 0, the ECDF difference line is briefly on top of the lower bound of the
+confidence interval, but the ECDF difference stays within the lines of the simultaneous confidence
+intervals."}
 
 Visualizing the continuous valued sample from a bounded density with a quantile dot plot.
 The quantile dots are correctly placed within the bounds of the data distribution, making the quantile dot plot a good alternative for visualizing bounded data.
@@ -619,28 +682,46 @@ the point mass is visible in the visualization, and the PIT ECDF indicates that
 the visualization is representative of the sample.
 
 ::: {#fig-kde-point-mass layout="[20,10]"}
-![](images/02_04_pointmass_kde_visualisation-1.png){.plot}
 
-![](images/02_04_pointmass_kde_ecdf_diff-1.png){.plot}
+![](images/02_04_pointmass_kde_visualisation-1.png){.plot fig-alt="A line graph with two lines, the
+KDE overlaid with the true density. A vertical line shows the position of the point-mass. The KDE
+follows the true density otherwise closely, but overestimates the true density on an interval
+surrounding the point mass."}
+
+![](images/02_04_pointmass_kde_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. The line has a discontinuity near PIT = 0.9 and crosses the upper bound of the
+simultaneous confidence intervals."}
 
 KDE for a continuous valued sample from a density with a point mass.
-The selected bandwidth is too large to adequately represent the point mass. This is detected by the goodness-of-fit test. 
+The selected bandwidth is too large to adequately represent the point mass. This is detected by the goodness-of-fit test.
 
 :::
 
 ::: {#fig-histogram-point-mass layout="[20,10]"}
-![](images/02_04_pointmass_histogram_visualisation-1.png){.plot}
 
-![](images/02_04_pointmass_histogram_ecdf_diff-1.png){.plot}
+![](images/02_04_pointmass_histogram_visualisation-1.png){.plot fig-alt="A histogram overlaid with a
+line graph of the true density with a vertical line showing the position of the point-mass. The
+point-mass is visible as a taller bin in the histogram, which follows the shape of the true density
+closely."}
+
+![](images/02_04_pointmass_histogram_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT
+ECDF difference. The line has a discontinuity near PIT = 0.9 and crosses the upper bound of the
+simultaneous confidence intervals."}
 
 Histogram for the continuous valued sample from a density with a point mass.
 The selected bin width is too wide and the misrepresentation of the data is detected by the goodness-of-fit test. 
 :::
 
 ::: {#fig-qplot-point-mass layout="[20,10]"}
-![](images/02_04_pointmass_qdotplot_visualisation-1.png){.plot}
 
-![](images/02_04_pointmass_qdotplot_ecdf_diff-1.png){.plot}
+![](images/02_04_pointmass_qdotplot_visualisation-1.png){.plot fig-alt="A quantile dot plot with 100
+dots overlaid with a line graph of the true density with a vertical line showing the position of the
+point-mass. The point-mass is visible as a taller stack of dots in the quantile dot plot, which
+follows the shape of the true density."}
+
+![](images/02_04_pointmass_qdotplot_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT
+ECDF difference. The line for the ECDF difference stays within the lines of the simultaneous
+confidence intervals."}
 
 Quantile dot plot of the continuous valued sample from a density with a point mass.
 The quantiles dots are able to represent the point mass and the visualization passes the goodness-of-fit test.
@@ -697,11 +778,20 @@ In our experience, the PIT ECDF plots of both the posterior predictive and LOO-p
 that the predictive distribution of the model is well calibrated and the visualizations give insight to the nature of the possible issues in model fit.
 
 ::: {#fig-overlaid-predictive-checks layout-ncol="3"}
-![KDE Overlay](images/02_05_kde_overlay-1.png){.plot #fig-density-overlay}
 
-![Histogram Overlay](images/02_05_hist_overlay-1.png){.plot #fig-histogram-overlay}
+![KDE Overlay](images/02_05_kde_overlay-1.png){.plot #fig-density-overlay fig-alt="A line graph
+showing multiple KDEs. A dark blue line depicts the observations and multiple light blue lines
+represent draws predictive draws. The dark blue line lies within the variation presented by the
+light blue lines."}
 
-![Quantile dot plot overlay](images/02_05_qdot_overlay-1.png){#fig-qdotplot-overlay}
+![Histogram Overlay](images/02_05_hist_overlay-1.png){.plot #fig-histogram-overlay fig-alt="A light
+blue histogram overlaid with dark blue point intervals. The heights of the histogram bins are within
+the intervals."}
+
+![Quantile dot plot overlay](images/02_05_qdot_overlay-1.png){.plot #fig-qdotplot-overlay fig-alt="A
+dark blue quantile dot plot overlaid with multiple light blue dots. The light blue dots follow the
+shape of the tops of the dark blue dot plot, but show vertical and horizontal variation in the dot
+locations."}
 
 Overlaid predictive checks. KDE plots can easily be overlaid and the resulting visualization is
 straightforward to read. The histogram for the data is overlaid with means and central 90% quantiles
