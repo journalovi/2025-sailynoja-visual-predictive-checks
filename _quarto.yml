@@ -12,7 +12,8 @@ format:
     citations-hover: false
     footnotes-hover: false
     crossrefs-hover: false
-
+    self-contained-math: true
+    html-math-method: katex
   pdf:
     number-sections: True
     documentclass: article

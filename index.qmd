@@ -33,10 +33,12 @@ lightbox: true
 
 :::: {.content-visible when-format="pdf"}
 
-::: {.callout-important appearance="simple" icon=false collapse=false}
-
-This article is intended to be viewed as an HTML, and its latest version is hosted online [here](https://teemusailynoja.github.io/visual-predictive-checks). 
-
+::: {.callout-important appearance="simple"}
+## Under Review {.unnumbered}
+This paper is [under review](https://www.journalovi.org/under-review.html) on the experimental
+track of the [Journal of Visualization and Interaction](https://www.journalovi.org/).
+See the [reviews](https://github.com/journalovi/2025-sailynoja-visual-predictive-checks/issues?q=label%3Areview) and
+[issues](https://github.com/journalovi/2025-sailynoja-visual-predictive-checks/issues) for this paper.
 :::
 
 ::::
