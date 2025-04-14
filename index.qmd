@@ -65,6 +65,12 @@ through kernel density estimates.
 We offer recommendations and diagnostic tools to mitigate ad-hoc decision-making in visual
 predictive checks. These contributions aim to improve the robustness and interpretability of
 Bayesian model criticism practices.
+
+
+###### Materials
+
+The source code implementing the visualization functions and probabilistic models, as well as extended case-studies and the data for the examples are provided online. The version of these materials used in this article is available in [Zenodo](https://zenodo.org/records/15189799), and the latest version at [https://github.com/TeemuSailynoja/visual-predictive-checks/tree/main/code](https://github.com/TeemuSailynoja/visual-predictive-checks/tree/main/code).
+
 :::
 
 ## Introduction
@@ -1203,8 +1209,8 @@ We would also like to thank the maintainers and contributors of the Open Source 
 ## Research materials {.unnumbered}
 
 Source files of this article, as well as supplementary materials providing additional detail into
-the examples and case studies shown in this article, can be found at
-[https://teemusailynoja.github.io/visual-predictive-checks](https://teemusailynoja.github.io/visual-predictive-checks).
+the examples and case-studies shown in this article, can be found at
+[https://teemusailynoja.github.io/visual-predictive-checks](https://teemusailynoja.github.io/visual-predictive-checks). The version of the implementations used in this article can be found in [Zenodo](https://zenodo.org/records/15189799).
 
 ## Authorship {.unnumbered}
 
