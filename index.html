@@ -3172,7 +3172,12 @@ window.Quarto = {
   <li><a href="#sec-visual-predictive-checks-for-categorical-data" id="toc-sec-visual-predictive-checks-for-categorical-data" class="nav-link" data-scroll-target="#sec-visual-predictive-checks-for-categorical-data"><span class="header-section-number">5</span> Visual predictive checks for categorical data</a></li>
   <li><a href="#sec-visual-predictive-checks-for-ordinal-data" id="toc-sec-visual-predictive-checks-for-ordinal-data" class="nav-link" data-scroll-target="#sec-visual-predictive-checks-for-ordinal-data"><span class="header-section-number">6</span> Visual predictive checks for ordinal data</a></li>
   <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion"><span class="header-section-number">7</span> Discussion</a></li>
-  
+  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#research-materials" id="toc-research-materials" class="nav-link" data-scroll-target="#research-materials">Research materials</a></li>
+  <li><a href="#authorship" id="toc-authorship" class="nav-link" data-scroll-target="#authorship">Authorship</a></li>
+  <li><a href="#license" id="toc-license" class="nav-link" data-scroll-target="#license">License</a></li>
+  <li><a href="#conflicts-of-interest" id="toc-conflicts-of-interest" class="nav-link" data-scroll-target="#conflicts-of-interest">Conflicts of interest</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </div>
@@ -3270,42 +3275,6 @@ Abstract
 <section id="conclusion" class="level6">
 <h6 class="anchored" data-anchor-id="conclusion">Conclusion</h6>
 <p>We offer recommendations and diagnostic tools to mitigate ad-hoc decision-making in visual predictive checks. These contributions aim to improve the robustness and interpretability of Bayesian model criticism practices.</p>
-</section>
-</div>
-</div>
-</div>
-<div class="callout callout-style-simple callout-note no-icon callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Materials, Authorship, License, Conflicts
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<section id="research-materials" class="level6">
-<h6 class="anchored" data-anchor-id="research-materials">Research materials</h6>
-<p>Source files of this article, as well as supplementary materials providing additional detail into the examples and case studies shown in this article, can be found at <a href="https://teemusailynoja.github.io/visual-predictive-checks">https://teemusailynoja.github.io/visual-predictive-checks</a>.</p>
-</section>
-<section id="authorship" class="level6">
-<h6 class="anchored" data-anchor-id="authorship">Authorship</h6>
-<ul>
-<li><strong>Teemu Säilynoja</strong>: Conceptualization, Methodology, Software, Investigation, Writing - Review &amp; Editing, Visualization</li>
-<li><strong>Andrew R. Johnson</strong>: Conceptualization, Writing - Review &amp; Editing</li>
-<li><strong>Osvaldo A. Martin</strong>: Writing - Review &amp; Editing, Visualization</li>
-<li><strong>Aki Vehtari</strong>: Conceptualization, Methodology, Writing - Review &amp; Editing, Supervision, Funding acquisition.</li>
-</ul>
-</section>
-<section id="license" class="level6">
-<h6 class="anchored" data-anchor-id="license">License</h6>
-<p>This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
-</section>
-<section id="conflicts-of-interest" class="level6">
-<h6 class="anchored" data-anchor-id="conflicts-of-interest">Conflicts of interest</h6>
-<p>The authors declare that there are no competing interests.</p>
 </section>
 </div>
 </div>
@@ -4306,14 +4275,14 @@ Figure 29: The side-by-side comparison of the PAV-adjusted calibration plots fo
 <p>To summaries our recommendations, KDE plots are primarily only recommended for when a modeller is confident that the distribution is smooth (no point-masses or steps), or if there are many unique discrete values. If a KDE plot is going to be used for a bounded distribution, boundary corrections methods should be used, and we still recommend goodness-of-fit checking. Failing this, if the distribution has a continuous component, we recommend a quantile dot plot. For count distributions, we recommend a modified rootogram, plotting points and credible intervals instead of smoothed limits. For unordered discrete data, we recommend using a PAV-adjusted One-Versus-Others calibration plot. Finally, for ordered discrete data, we also recommend a PAV-adjusted calibration, but evaluating the cumulative conditional event probabilities.</p>
 <p>It must be emphasized that these are only general recommendations. As we have presented above, these recommended plots may still fail to identify miscalibration or other goodness-of-fit issues in some situations. Careful consideration of model assumptions and application of diagnostics should always form part of the modeller’s standard practice. Many of our recommendations can be taken into account in the visual predictive checking software, for example, by giving a warning if a user tries to use overlaid KDE plot or bar plot for checking a model in case of binary data.</p>
 </section>
-
-
-<div id="quarto-appendix" class="default"><section id="acknowledgements" class="level2 appendix unnumbered"><h2 class="anchored quarto-appendix-heading">Acknowledgements</h2><div class="quarto-appendix-contents">
-
+<section id="acknowledgements" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
 <p>We acknowledge the support by the Research Council of Finland Flagship programme: Finnish Center for Artificial Intelligence and Research Council of Finland project (340721).</p>
 <p>We would also like to thank the maintainers and contributors of the Open Source software used in creating the visualizations and examples presented in this article: <span class="citation" data-cites="package_r">R Core Team (<a href="#ref-package_r" role="doc-biblioref">2021</a>)</span>; <span class="citation" data-cites="wickham_ggplot2_2016">Wickham (<a href="#ref-wickham_ggplot2_2016" role="doc-biblioref">2016</a>)</span>, Kay <span class="citation" data-cites="package_ggdist kay_ggdist_2023">(<a href="#ref-package_ggdist" role="doc-biblioref">2023</a>, <a href="#ref-kay_ggdist_2023" role="doc-biblioref">2024</a>)</span>, <span class="citation" data-cites="gabry_visualization_2019">Gabry et al. (<a href="#ref-gabry_visualization_2019" role="doc-biblioref">2019</a>)</span> and <span class="citation" data-cites="gabry_plotting_2022">Gabry and Mahr (<a href="#ref-gabry_plotting_2022" role="doc-biblioref">2024</a>)</span> for their excellent visualization packages; <span class="citation" data-cites="package_cubature">Narasimhan et al. (<a href="#ref-package_cubature" role="doc-biblioref">2024</a>)</span> for implementation of the numerical integration used in the PIT computations for KDE densities; <span class="citation" data-cites="package_iso">Turner (<a href="#ref-package_iso" role="doc-biblioref">2023</a>)</span>, <span class="citation" data-cites="package_caret">Kuhn and Max (<a href="#ref-package_caret" role="doc-biblioref">2008</a>)</span>, and <span class="citation" data-cites="dimitriadis_stable_2021">Dimitriadis, Gneiting, and Jordan (<a href="#ref-dimitriadis_stable_2021" role="doc-biblioref">2021</a>)</span> for implementing functions used in making calibration plots; and Bürkner <span class="citation" data-cites="package_brms1 package_brms2 package_brms3">(<a href="#ref-package_brms1" role="doc-biblioref">2017</a>, <a href="#ref-package_brms2" role="doc-biblioref">2018</a>, <a href="#ref-package_brms3" role="doc-biblioref">2021</a>)</span>, <span class="citation" data-cites="package_cmdstanr">Gabry et al. (<a href="#ref-package_cmdstanr" role="doc-biblioref">2024</a>)</span>, <span class="citation" data-cites="package_rstanarm">Goodrich et al. (<a href="#ref-package_rstanarm" role="doc-biblioref">2024</a>)</span>, and <span class="citation" data-cites="standev2018stancore">Team (<a href="#ref-standev2018stancore" role="doc-biblioref">2018</a>)</span> for developing the probabilistic programming software used in this article.</p>
-
-</div></section><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-agresti_categorical_2013" class="csl-entry" role="listitem">
 Agresti, Alan. 2013. <em>Categorical Data Analysis</em>. Third edition. Wiley Series in Probability and Statistics. Hoboken, New Jersey: Wiley-Interscience.
 </div>
@@ -4440,7 +4409,31 @@ Wickham, Hadley. 2016. <em><span class="nocase">ggplot2</span>: Elegant Graphics
 <div id="ref-wilkinson_dot_1999" class="csl-entry" role="listitem">
 Wilkinson, Leland. 1999. <span>“Dot Plots.”</span> <em>The American Statistician</em> 53 (3): 276. <a href="https://doi.org/10.2307/2686111">https://doi.org/10.2307/2686111</a>.
 </div>
-</div></section></div></main>
+</div>
+</section>
+<section id="research-materials" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="research-materials">Research materials</h2>
+<p>Source files of this article, as well as supplementary materials providing additional detail into the examples and case studies shown in this article, can be found at <a href="https://teemusailynoja.github.io/visual-predictive-checks">https://teemusailynoja.github.io/visual-predictive-checks</a>.</p>
+</section>
+<section id="authorship" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="authorship">Authorship</h2>
+<ul>
+<li><strong>Teemu Säilynoja</strong>: Conceptualization, Methodology, Software, Investigation, Writing - Review &amp; Editing, Visualization</li>
+<li><strong>Andrew R. Johnson</strong>: Conceptualization, Writing - Review &amp; Editing</li>
+<li><strong>Osvaldo A. Martin</strong>: Writing - Review &amp; Editing, Visualization</li>
+<li><strong>Aki Vehtari</strong>: Conceptualization, Methodology, Writing - Review &amp; Editing, Supervision, Funding acquisition.</li>
+</ul>
+</section>
+<section id="license" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="license">License</h2>
+<p>This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
+</section>
+<section id="conflicts-of-interest" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="conflicts-of-interest">Conflicts of interest</h2>
+<p>The authors declare that there are no competing interests.</p>
+</section>
+
+</main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
