@@ -31,18 +31,6 @@ tbl-cap-location: bottom
 lightbox: true
 ---
 
-:::: {.content-visible when-format="pdf"}
-
-::: {.callout-important appearance="simple"}
-## Under Review {.unnumbered}
-This paper is [under review](https://www.journalovi.org/under-review.html) on the experimental
-track of the [Journal of Visualization and Interaction](https://www.journalovi.org/).
-See the [reviews](https://github.com/journalovi/2025-sailynoja-visual-predictive-checks/issues?q=label%3Areview) and
-[issues](https://github.com/journalovi/2025-sailynoja-visual-predictive-checks/issues) for this paper.
-:::
-
-::::
-
 ::: {.callout-important appearance="simple"}
 ## Under Review {.unnumbered}
 This paper is [under review](https://www.journalovi.org/under-review.html) on the experimental track of
@@ -52,7 +40,6 @@ the [Journal of Visualization and Interaction](https://www.journalovi.org/). See
 
 ::: {.callout-note appearance="simple" icon=false collapse=false}
 ## Abstract {.unnumbered}
-
 ###### Introduction
 A key step in the Bayesian workflow for model building is the graphical assessment of model predictions,
 whether these are drawn from the prior or posterior predictive distribution.
@@ -78,32 +65,6 @@ through kernel density estimates.
 We offer recommendations and diagnostic tools to mitigate ad-hoc decision-making in visual
 predictive checks. These contributions aim to improve the robustness and interpretability of
 Bayesian model criticism practices.
-:::
-
-::: {.callout-note appearance="simple" icon=false collapse=true}
-## Materials, Authorship, License, Conflicts
-
-###### Research materials
-
-Source files of this article, as well as supplementary materials providing additional detail into
-the examples and case studies shown in this article, can be found at
-[https://teemusailynoja.github.io/visual-predictive-checks](https://teemusailynoja.github.io/visual-predictive-checks).
-
-###### Authorship
-
- - **Teemu Säilynoja**: Conceptualization, Methodology, Software, Investigation, Writing - Review &
-Editing, Visualization
- - **Andrew R. Johnson**: Conceptualization, Writing - Review & Editing
- - **Osvaldo A. Martin**: Writing - Review & Editing, Visualization
- - **Aki Vehtari**: Conceptualization, Methodology, Writing - Review & Editing, Supervision, Funding acquisition.
-
-###### License
-
-This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
-
-###### Conflicts of interest
-
-The authors declare that there are no competing interests.
 :::
 
 ## Introduction
@@ -1229,7 +1190,33 @@ form part of the modeller’s standard practice. Many of our recommendations can
 in the visual predictive checking software, for example, by giving a warning if a user tries to
 use overlaid KDE plot or bar plot for checking a model in case of binary data.
 
-## Acknowledgements  {.appendix .unnumbered}
+## Acknowledgements  {.unnumbered}
 We acknowledge the support by the Research Council of Finland Flagship programme: Finnish Center for Artificial Intelligence and Research Council of Finland project (340721).
 
 We would also like to thank the maintainers and contributors of the Open Source software used in creating the visualizations and examples presented in this article: @package_r; @wickham_ggplot2_2016, Kay [-@package_ggdist;-@kay_ggdist_2023], @gabry_visualization_2019 and @gabry_plotting_2022 for their excellent visualization packages; @package_cubature for implementation of the numerical integration used in the PIT computations for KDE densities; @package_iso, @package_caret, and @dimitriadis_stable_2021 for implementing functions used in making calibration plots; and Bürkner [-@package_brms1;-@package_brms2;-@package_brms3], @package_cmdstanr, @package_rstanarm, and @standev2018stancore for developing the probabilistic programming software used in this article.
+
+## References {.unnumbered}
+
+::: {#refs}
+:::
+
+## Research materials {.unnumbered}
+
+Source files of this article, as well as supplementary materials providing additional detail into
+the examples and case studies shown in this article, can be found at
+[https://teemusailynoja.github.io/visual-predictive-checks](https://teemusailynoja.github.io/visual-predictive-checks).
+
+## Authorship {.unnumbered}
+
+ - **Teemu Säilynoja**: Conceptualization, Methodology, Software, Investigation, Writing - Review &
+Editing, Visualization
+ - **Andrew R. Johnson**: Conceptualization, Writing - Review & Editing
+ - **Osvaldo A. Martin**: Writing - Review & Editing, Visualization
+ - **Aki Vehtari**: Conceptualization, Methodology, Writing - Review & Editing, Supervision, Funding acquisition.
+
+## License {.unnumbered}
+
+This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
+
+## Conflicts of interest {.unnumbered}
+The authors declare that there are no competing interests.
