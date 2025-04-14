@@ -176,11 +176,11 @@ visualization and are the two most common choices for initial visual PPCs (@wick
 
 :::{#fig-intro-triplet layout-ncol=3}
 
-![Histogram](images/intro_histogram.png){#fig-intro-triplet-histogram}
+![Histogram](images/intro_histogram.png){.plot #fig-intro-triplet-histogram fig-alt="A histogram with 30 equally spaced bins showing a sample from normal distribution."}
 
-![KDE Density plot](images/intro_density.png){#fig-intro-triplet-kde}
+![KDE Density plot](images/intro_density.png){.plot #fig-intro-triplet-kde fig-alt="A kernel density plot of a sample from normal distribution."}
 
-![Quantile dot plot](images/intro_qdot.png){#fig-intro-triplet-qdot}
+![Quantile dot plot](images/intro_qdot.png){.plot #fig-intro-triplet-qdot fig-alt="A quantile dot plot of a sample from normal distribution. The plot shows 100 vertically stacked dots at the x-axis positions of their respective quantiles."}
 
 Three visualizations of the same sample from a smooth continuous distribution.
 a) Histogram with 30 equally spaced bins. 
@@ -389,13 +389,23 @@ modeling choices.
 
 ::: {#fig-true-densities layout-ncol="3"}
 
-![Density with steps](images/02_02_step_true_density-1.png){.plot #fig-true-step}
+![Density with steps](images/02_02_step_true_density-1.png){.plot #fig-true-step fig-alt="A continuous
+line representing density values. From x = -3 to x = -0.5, the density increases smoothly. At x =
+-0.5, the density drops sharply to a constant value, and increases again sharply at x = 0.5,
+continuing as a smoothly decreasing function from x = 0.5 to x = 2."}
 
-![Strictly bounded density](images/02_03_bounded_true_density-1.png){.plot #fig-true-bounded}
+![Strictly bounded density](images/02_03_bounded_true_density-1.png){.plot #fig-true-bounded
+fig-alt="Continuous line representing density values. Between x = 0.5 and x = 2.75, the density is
+smoothly decreasing. At the ends of this interval, the density drops sharply to zero, and stays at
+zero outside the interval."}
 
-![Density with a point mass](images/02_04_pointmass_true_density-1.png){.plot #fig-true-point-mass}
+![Density with a point mass](images/02_04_pointmass_true_density-1.png){.plot #fig-true-point-mass
+fig-alt="Continuous line representing the density of a normal distribution. At x = 1, a vertical
+line represents a point-mass in the density."}
 
-True densities for the examples used in @sec-density-function-with-steps, @sec-bounded-density, and @sec-point-mass. Each of these examples poses a challenge for KDE density plots and histograms, and avoiding misrepresenting the data requires special attention.
+True densities for the examples used in @sec-density-function-with-steps, @sec-bounded-density, and
+@sec-point-mass. Each of these examples poses a challenge for KDE density plots and histograms, and
+avoiding misrepresenting the data requires special attention.
 
 :::
 
@@ -418,13 +428,20 @@ the discreteness of the PIT ECDF of the quantile dot plot is visible.
 ::: {#fig-kde-continuous-unbounded layout-ncol="3"}
 
 ![KDE](images/02_01_continuous_kde_visualisation-1.png){.plot
-#fig-kde-continuous-unbounded-densityplot}
+#fig-kde-continuous-unbounded-densityplot fig-alt="Two smooth lines representing the true density
+and the KDE. The KDE closely matches the true density."}
 
 ![PIT ECDF](images/02_01_continuous_kde_ecdf_regular-1.png){.plot
-#fig-kde-continuous-unbounded-ecdf}
+#fig-kde-continuous-unbounded-ecdf fig-alt="A line graph showing the ECDF of the PIT values. The
+x-axis represents the PIT values and y-axis the ECDF values. Shown are three lines; the ECDF of the
+observation PIT values, and the upper and lower bounds of the simultaneous confidence intervals for
+uniform ECDF. The ECDF stays within the bounds."}
 
 ![PIT ECDF difference](images/02_01_continuous_kde_ecdf_diff-1.png){.plot
-#fig-kde-continuous-unbounded-ecdf-diff}
+#fig-kde-continuous-unbounded-ecdf-diff fig-alt="A line graph showing the PIT ECDF difference. The
+x-axis shows the PIT values and the y-axis the difference between the ECDF values and the expected
+value of the ECDF. The line for the ECDF difference stays within the lines representing the
+simultaneous confidence intervals."}
 
 Visualizing a sample from a smooth and unbounded density with a kernel density estimate.
 (a) the KDE of the sample in blue and the true density in black.
@@ -435,19 +452,28 @@ goodness-of-fit issues are indicated by the plot as the PIT ECDF stays within th
 :::
 
 ::: {#fig-histogram-continuous layout="[20,10]"}
-![](images/02_01_continuous_histogram_visualisation-1.png){.plot }
 
-![](images/02_01_continuous_histogram_ecdf_diff-1.png){.plot}
+![](images/02_01_continuous_histogram_visualisation-1.png){.plot fig-alt="An equally binned histogram
+of the observed values overlaid with the continuous true density. The histogram matches the curve of
+the true density well."}
 
+![](images/02_01_continuous_histogram_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT
+ECDF difference. The line for the ECDF difference stays within the lines of the simultaneous
+confidence intervals."}
 
 A histogram of the sample, with the smooth and unbounded true density overlaid in black. We use the rule by @freedman_histogram_1981 to determine the number of bins. The PIT ECDF difference plot indicates a good fit between the visualization and the sample.
 
 :::
 
 ::: {#fig-qdplot-continuous layout="[20,10]"}
-![](images/02_01_continuous_qdotplot_visualisation-1.png)
 
-![](images/02_01_continuous_ecdf_diff-1.png)
+![](images/02_01_continuous_qdotplot_visualisation-1.png){.plot fig-alt="A quantile dot plot with
+100 dots overlaid with a line showing the true density. Some dot stacks are one dot taller than the
+true density, but the shape of the quantile dot plot matches the true density well."}
+
+![](images/02_01_continuous_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. The line for the ECDF difference stays within the lines of the simultaneous confidence
+intervals."}
 
 The quantile dot plot and the true density overlaid in black. As with all quantile dot plots in this article, we show 100 quantiles. The PIT ECDF difference plot indicates a good fit between the visualization and the sample.
 
@@ -500,20 +526,33 @@ discontinuities don't cause issues to the goodness-of-fit.
 
 
 ::: {#fig-kde-step layout="[20,10]"}
-![](images/02_02_step_kde_visualisation-1.png){.plot}
 
-![](images/02_02_step_kde_ecdf_diff-1.png){.plot}
+![](images/02_02_step_kde_visualisation-1.png){.plot fig-alt="A
+line graph with two lines showing the continuous KDE values in red and blue. The KDE values are
+overlaid with the true density with steps in black. Near the steps, both KDEs divert from the true
+density, with the blue KDE line following the true density more closely."}
+
+![](images/02_02_step_kde_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. A red and a blue ECDF difference line are shown. Both have a distinct drop after PIT =
+0.5, but the blue line stays within the simultaneous confidence intervals, while the red line dips
+below the lower bound of the intervals."}
 
 Two kernel density plots for a continuous valued sample from a density with steps. In
 <span style="color:#E34D34;">red</span>, a KDE with the bandwidth selected with
 <span style="color:#E34D34;">Silverman's rule of thumb</span> [@silverman_density_1986], and in <span style="color:#6497b1;">blue</span> a KDE using the
 <span style="color:#6497b1;">Sheather-Jones</span> bandwidth selection method [@sheather_reliable_1991], which results to a smaller bandwidth and a better fit to the sample.  
+
 :::
 
 ::: {#fig-histogram-step layout="[20,10]"}
-![](images/02_02_step_histogram_visualisation-1.png){.plot}
 
-![](images/02_02_step_histogram_ecdf_diff-1.png){.plot}
+![](images/02_02_step_histogram_visualisation-1.png){.plot fig-alt="A histogram overlaid with the
+true density with steps. Near the second, taller step, the histogram bin starts slightly before the
+step and does not reach its top."}
+
+![](images/02_02_step_histogram_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. The line for the ECDF difference stays within the lines of the simultaneous confidence
+intervals, but has a distinct downwards dip after PIT = 0.5."}
 
 Visualizing the continuous valued sample from a density with steps with a histogram. Here, our bin
 width selection algorithm has resulted in an adequate fit to the data, although the local deviation
@@ -522,9 +561,14 @@ from the expected CDF is clearly visible in the PIT ECDF plot.
 :::
 
 ::: {#fig-qplot-step layout="[20,10]"}
-![](images/02_02_step_qdotplot_visualisation-1.png){.plot}
 
-![](images/02_02_step_qdotplot_ecdf_diff-1.png){.plot}
+![](images/02_02_step_qdotplot_visualisation-1.png){.plot fig-alt="A quantile dot plot with 100 dots
+overlaid with a line graph of the true step density values. The quantile dot plot faithfully shows
+the steps of the true density."}
+
+![](images/02_02_step_qdotplot_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. The line for the ECDF difference stays within the lines of the simultaneous confidence
+intervals."}
 
 Visualizing the continuous valued sample from a density with steps with a quantile dot plot. The
 larger step is clearly visible, and PIT ECDF plot stays within the simultaneous confidence
@@ -566,9 +610,16 @@ satisfactory.
 
 
 ::: {#fig-kde-bounds layout="[20,10]"}
-![](images/02_03_bounded_kde_visualisation-1.png){.plot}
 
-![](images/02_03_bounded_kde_ecdf_diff-1.png){.plot}
+![](images/02_03_bounded_kde_visualisation-1.png){.plot fig-alt="A line graph where two colored
+lines show KDE values in red and blue. The KDE values are overlaid with the true bounded density in
+black. Near the bounds, both KDEs divert from the true density, with the red line following the true
+density more closely. Far from the bounds, the KDEs agree and the lines are indistinguishable.
+Within the bounds, both KDEs follow the downwards trend of the true density."}
+
+![](images/02_03_bounded_kde_ecdf_diff-1.png){.plot fig-alt="A line graph showing two PIT ECDF
+differences. The red line for the ECDF difference stays within the bounds of the simultaneous
+confidence intervals while the blue line exceeds the upper bound near PIT = 0 and PIT = 1."}
 
 Two kernel density plots for a continuous valued sample from a bounded density.
 In <span style="color:#E34D34;">red</span>, a KDE using a <span style="color:#E34D34;">boundary correction</span> and automated boundary detection as implemented in the ggdist package for R [@kay_ggdist_2023].
@@ -577,18 +628,30 @@ Again, the misrepresentation of the sample close to the distribution boundaries 
 :::
 
 ::: {#fig-histogram-bounds layout="[20,10]"}
-![](images/02_03_bounded_histogram_visualisation-1.png){.plot}
 
-![](images/02_03_bounded_histogram_ecdf_diff-1.png){.plot}
+![](images/02_03_bounded_histogram_visualisation-1.png){.plot fig-alt="A histogram overlaid with a
+line graph of the true bounded density. The first bin of the histogram starts before the lower bound
+of the density, and the last bin end after the upper bound of the density. Within the bounds, the
+histogram follows the downwards trend of the true density."}
+
+![](images/02_03_bounded_histogram_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. At PIT = 0, the ECDF difference line dips below the lower bound of the simultaneous
+confidence intervals."}
 
 Visualizing the continuous valued sample from a bounded density with a histogram. The PIT ECDF line crosses the simultaneous confidence bands at the extreme PIT values, indicating issues in representing the boundaries of the data distribution. The drop in the PIT ECDF close to zero indicates underestimation of the left bound of the distribution, and respectively, the smaller upwards peak close to one indicates over estimation of the right bound.
 
 :::
 
 ::: {#fig-qplot-bounds layout="[20,10]"}
-![](images/02_03_bounded_qdotplot_visualisation-1.png){.plot}
 
-![](images/02_03_bounded_ecdf_diff-1.png){.plot}
+![](images/02_03_bounded_qdotplot_visualisation-1.png){.plot fig-alt="A quantile dot plot with 100
+dots overlaid with a line graph of the true bounded density. The quantile dot plot accurately places
+the dots within the bounds of the true density and follows the downwards trend of the density."}
+
+![](images/02_03_bounded_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. Near PIT = 0, the ECDF difference line is briefly on top of the lower bound of the
+confidence interval, but the ECDF difference stays within the lines of the simultaneous confidence
+intervals."}
 
 Visualizing the continuous valued sample from a bounded density with a quantile dot plot.
 The quantile dots are correctly placed within the bounds of the data distribution, making the quantile dot plot a good alternative for visualizing bounded data.
@@ -621,28 +684,46 @@ the point mass is visible in the visualization, and the PIT ECDF indicates that
 the visualization is representative of the sample.
 
 ::: {#fig-kde-point-mass layout="[20,10]"}
-![](images/02_04_pointmass_kde_visualisation-1.png){.plot}
 
-![](images/02_04_pointmass_kde_ecdf_diff-1.png){.plot}
+![](images/02_04_pointmass_kde_visualisation-1.png){.plot fig-alt="A line graph with two lines, the
+KDE overlaid with the true density. A vertical line shows the position of the point-mass. The KDE
+follows the true density otherwise closely, but overestimates the true density on an interval
+surrounding the point mass."}
+
+![](images/02_04_pointmass_kde_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT ECDF
+difference. The line has a discontinuity near PIT = 0.9 and crosses the upper bound of the
+simultaneous confidence intervals."}
 
 KDE for a continuous valued sample from a density with a point mass.
-The selected bandwidth is too large to adequately represent the point mass. This is detected by the goodness-of-fit test. 
+The selected bandwidth is too large to adequately represent the point mass. This is detected by the goodness-of-fit test.
 
 :::
 
 ::: {#fig-histogram-point-mass layout="[20,10]"}
-![](images/02_04_pointmass_histogram_visualisation-1.png){.plot}
 
-![](images/02_04_pointmass_histogram_ecdf_diff-1.png){.plot}
+![](images/02_04_pointmass_histogram_visualisation-1.png){.plot fig-alt="A histogram overlaid with a
+line graph of the true density with a vertical line showing the position of the point-mass. The
+point-mass is visible as a taller bin in the histogram, which follows the shape of the true density
+closely."}
+
+![](images/02_04_pointmass_histogram_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT
+ECDF difference. The line has a discontinuity near PIT = 0.9 and crosses the upper bound of the
+simultaneous confidence intervals."}
 
 Histogram for the continuous valued sample from a density with a point mass.
 The selected bin width is too wide and the misrepresentation of the data is detected by the goodness-of-fit test. 
 :::
 
 ::: {#fig-qplot-point-mass layout="[20,10]"}
-![](images/02_04_pointmass_qdotplot_visualisation-1.png){.plot}
 
-![](images/02_04_pointmass_qdotplot_ecdf_diff-1.png){.plot}
+![](images/02_04_pointmass_qdotplot_visualisation-1.png){.plot fig-alt="A quantile dot plot with 100
+dots overlaid with a line graph of the true density with a vertical line showing the position of the
+point-mass. The point-mass is visible as a taller stack of dots in the quantile dot plot, which
+follows the shape of the true density."}
+
+![](images/02_04_pointmass_qdotplot_ecdf_diff-1.png){.plot fig-alt="A line graph showing the PIT
+ECDF difference. The line for the ECDF difference stays within the lines of the simultaneous
+confidence intervals."}
 
 Quantile dot plot of the continuous valued sample from a density with a point mass.
 The quantiles dots are able to represent the point mass and the visualization passes the goodness-of-fit test.
@@ -699,11 +780,20 @@ In our experience, the PIT ECDF plots of both the posterior predictive and LOO-p
 that the predictive distribution of the model is well calibrated and the visualizations give insight to the nature of the possible issues in model fit.
 
 ::: {#fig-overlaid-predictive-checks layout-ncol="3"}
-![KDE Overlay](images/02_05_kde_overlay-1.png){.plot #fig-density-overlay}
 
-![Histogram Overlay](images/02_05_hist_overlay-1.png){.plot #fig-histogram-overlay}
+![KDE Overlay](images/02_05_kde_overlay-1.png){.plot #fig-density-overlay fig-alt="A line graph
+showing multiple KDEs. A dark blue line depicts the observations and multiple light blue lines
+represent draws predictive draws. The dark blue line lies within the variation presented by the
+light blue lines."}
 
-![Quantile dot plot overlay](images/02_05_qdot_overlay-1.png){#fig-qdotplot-overlay}
+![Histogram Overlay](images/02_05_hist_overlay-1.png){.plot #fig-histogram-overlay fig-alt="A light
+blue histogram overlaid with dark blue point intervals. The heights of the histogram bins are within
+the intervals."}
+
+![Quantile dot plot overlay](images/02_05_qdot_overlay-1.png){.plot #fig-qdotplot-overlay fig-alt="A
+dark blue quantile dot plot overlaid with multiple light blue dots. The light blue dots follow the
+shape of the tops of the dark blue dot plot, but show vertical and horizontal variation in the dot
+locations."}
 
 Overlaid predictive checks. KDE plots can easily be overlaid and the resulting visualization is
 straightforward to read. The histogram for the data is overlaid with means and central 90% quantiles
@@ -762,9 +852,9 @@ zero, the observation distribution is well summarized by the KDE plot.
 
 ::: {#fig-high-cardinality-count-data-kde-ecdf layout-ncol="2"}
 
-![](images/03_01_unbounded_kde-1.png){.plot}
+![](images/03_01_unbounded_kde-1.png){.plot fig-alt="A line graph showing a KDE of the observation in dark blue. This is overlaid with KDEs of the predictive samples. The x-axis is displayed in log-scale."}
 
-![](images/03_01_unbounded_kde_pit_ecdf-1.png){.plot}
+![](images/03_01_unbounded_kde_pit_ecdf-1.png){.plot fig-alt="A PIT-ECDF plot. The ECDF of the PIT values stays above the simultanous confidense intervals for the whole visualization, and shows clear discrete steps. After the first few steps, the step size reduces and the line looks smoother."}
 
 An overlaid KDE plot of the observed roach counts and the predictive samples. The KDE density uses the
 default predictive check implementation of `bayesplot`, and is not bounded and has
@@ -776,9 +866,9 @@ the PIT ECDF staying above the simultaneous confidence bands.
 
 ::: {#fig-small-bandwidth-count-data-kde layout-ncol="2"}
 
-![](images/03_01_bounded_kde_bounded-1.png){.plot}
+![](images/03_01_bounded_kde_bounded-1.png){.plot fig-alt="A line graph showing a KDE of the observation in dark blue. This is overlaid with KDEs of the predictive samples. The x-axis is displayed in log-scale. The KDEs show a distinct spike at x=0, and x=1 with very low density between these values."}
 
-![](images/03_01_bounded_kde_bounded_pit_ecdf-1.png){.plot}
+![](images/03_01_bounded_kde_bounded_pit_ecdf-1.png){.plot fig-alt="A PIT-ECDF plot. The ECDF of the PIT values starts above the simultanous confidense intervals, and shows clear discrete steps. After the first step, the ECDF stays within the confidence intervals, and the step size reduces and the line looks smoother."}
 
 An overlaid KDE plot of the observed roach counts and the predictive samples. The KDE is bounded at
 zero and uses the SJ method for bandwidth selection, resulting in a better fit to the discrete data.
@@ -795,11 +885,11 @@ When moving to analyze the bulk of the distribution, we see that the number of d
 
 ::: {#fig-rootogram-examples layout-ncol="3"}
 
-![Standing Rootogram](images/03_01_rootogram_plain_cut-1.png){.plot #fig-standing-rootogram}
+![Standing Rootogram](images/03_01_rootogram_plain_cut-1.png){.plot #fig-standing-rootogram fig-alt="A bar graph of observations overlaid with a line graph of predictive means, and a ribbon of predictive intervals surrounding the means."}
 
-![Hanging Rootogram](images/03_01_rootogram_hanging_cut-1.png){.plot #fig-hanging-rootogram}
+![Hanging Rootogram](images/03_01_rootogram_hanging_cut-1.png){.plot #fig-hanging-rootogram fig-alt="A line graph of predictive means, and a ribbon of predictive intervals surrounding the means. Observations are displayed as bars with the top of the bar at the predictive mean, and the bottom displaying the difference of the observation and the predictive mean."}
 
-![Suspended Rootogram](images/03_01_rootogram_suspended_cut-1.png){.plot #fig-suspended-rootogram}
+![Suspended Rootogram](images/03_01_rootogram_suspended_cut-1.png){.plot #fig-suspended-rootogram fig-alt="A bar graph of the differences between the observations and the predictive means overlaid with a line graph of predictive means, and a ribbon of predictive intervals surrounding the means."}
 
 The three types of rootograms introduced by @kleiber_visualizing_2016, here with an additional darker ribbon representing the predictive uncertainty.
 a) The standing rootogram displays a bar graph of the observed counts overlaid with the predictive expectations and their 90% credible intervals.
@@ -833,9 +923,9 @@ other end at the horizontal axis of the visualization.
 
 ::: {#fig-new-rootogram-comparison layout-ncol="2"}
 
-![Standing Rootogram](images/03_01_rootogram_plain_cut-2.png){.plot #fig-standing-rootogram-comparison}
+![Standing Rootogram](images/03_01_rootogram_plain_cut-2.png){.plot #fig-standing-rootogram-comparison fig-alt="A standing rootogram. Bar plot of the observation overlaid with a line graph of the expected predictive count frequencies and a ribbon showing the 90% credible interval. The y-axis of the plot displays squareroots of the frequencies, ranging from 0 to 10."}
 
-![Discrete Rootogram](images/03_01_rootogram_discrete_cut-1.png){.plot #fig-discrete-rootogram}
+![Discrete Rootogram](images/03_01_rootogram_discrete_cut-1.png){.plot #fig-discrete-rootogram fig-alt="A discretized rootogram. Scatter plot of observation counts overlaid with lighter points for expected predictive count frequencies and lines showing 90% credible intervals. Observations falling outside the credible intervals are shown in red. The y-axis of the plot is squareroot scaled with the axis tick values ranging from 0 to 100."}
 
 A side-by-side comparison of the commonly used standing rootogram with credible intervals, and our suggested version which emphasizes discreteness of count data.
 a) Displays the square roots of the count frequencies, and visualizes the model predictions through a continuous line and ribbon.
@@ -863,13 +953,13 @@ frequencies shown on the vertical axis of the plot.
 
 ::: {#fig-calibration-of-event-probability layout-ncol="3"}
 
-![Bar graph](images/03_01_ppc_bars-triple-1.png){.plot #fig-binomial-bars}
+![Bar graph](images/03_01_ppc_bars-triple-1.png){.plot #fig-binomial-bars fig-alt="A bar plot of observed counts of 100 zeros and 160 ones. Overlaid on the barplot are vertical point intervals of the expectations and credble intervals of the predicted counts. Both predictive means deviate from the observed counts, but the bars are within the credible intervals."}
 
 ![Binned calibration plot](images/03_01_binned_calibration_plot-1.png){.plot
-#fig-binomial-binned-calibration}
+#fig-binomial-binned-calibration fig-alt="A binned calibration plot. x and y axes ranging from 0 to 1 with predicted probability on x and observed relative event rate on y axis. Between x = 0.5 and x = 0.9, the plot shows 7 equally spaced vertical point intervals. The first point interval is completely below a diagonal y=x reference line."}
 
 ![PAV-adjusted calibration plot](images/03_01_pava_calibration-1.png){.plot
-#fig-binomial-pava-calibration}
+#fig-binomial-pava-calibration fig-alt="PAV-adjusted calibration plot. x and y axes ranging from 0 to 1 with predicted probability on the x axis and conditional event probability on the y axis. A diagonal dashed reference line for y = x is shown. The plot shows a red stepped calibration line overlaid on a light blue consistency ribbon. A quantile dot plot of the predicted probabilities is shown on the x axis. The calibration line starts from y = 0 at x = 0.25 and reaches the right top corner. At x = 0.6, the calibration line is briefly outside the consistency ribbon. The quantile dot plot shows that 90% of the predicted probabilities are between 0.5 and 0.9."}
 
 Calibration of estimated probability of observing a non-zero number of roaches. (a) \& (b) commonly
 used bar and binned calibration plots, (c) the PAV-adjusted calibration plot, with 95\% consistency
@@ -911,9 +1001,9 @@ in the predictions of the models can be seen.
 
 ::: {#fig-ppc-bars  layout="[20,20]"}
 
-![Intercept-only model](images/03_01_ppc_bars_intercept_only-1.png){width="60%"}
+![Intercept-only model](images/03_01_ppc_bars_intercept_only-1.png){.plot width="60%" fig-alt="A bar plot of observed counts of 0 and 1 events. Overlaid are vertival point intervals of the predictive expectations and credible intervals of the event counts. The predictive means are at the same height as the bars for the observed counts."}
 
-![Negative binomial model](images/03_01_ppc_bars-1.png){width="60%"}
+![Negative binomial model](images/03_01_ppc_bars-1.png){.plot width="60%" fig-alt="A bar plot of observed counts of 0 and 1 events. Overlaid are vertival point intervals of the predictive expectations and credible intervals of the event counts. The predictive means deviate from the observed counts, but both bars are within the credible intervals."}
 
 We cannot see a difference in the predictive performance of the two models from the bar graphs. For
 both models, the observed event frequency falls within the 95% credible interval with the mean predicted frequency of the intercept only model aligning exactly with the observation. Bar plots are almost always useless for predictive checking in case of binary data.
@@ -943,9 +1033,9 @@ observed.
 
 ::: {#fig-binned-calibration-plots  layout="[20,20]"}
 
-![Intercept-only model](images/03_01_binned_calibration_plot_intercept_only-1.png)
+![Intercept-only model](images/03_01_binned_calibration_plot_intercept_only-1.png){.plot fig-alt="Binned calibration plot. Only a single vertical point interval is displayed. The interval is relatively narrow and centered on the diagonal reference line."}
 
-![Negative binomial model](images/03_01_binned_calibration_plot-1.png)
+![Negative binomial model](images/03_01_binned_calibration_plot-1.png){.plot  fig-alt="A binned calibration plot. Between x = 0.5 and x = 0.9, the plot shows 7 equally spaced vertical point intervals. The first point interval is completely below a diagonal y=x reference line."}
 
 The intercept only model has no ability to discriminate between the observations, while the negative
 binomial model can recognize cases where we are more likely to observe roaches. Still, the negative
@@ -969,9 +1059,9 @@ bands by using the corresponding posterior predictive draws to determine the 95%
 intervals for CEPs of draws from the predictive distribution.
 
 ::: {#fig-pava-calibration  layout-ncol="2"}
-![Negative binomial model](images/03_01_pava_calibration-1.png){.plot}
+![Negative binomial model](images/03_01_pava_calibration-1.png){.plot fig-alt="PAV-adjusted calibration plot. The red calibration line starts from y = 0 at x = 0.25 and reaches the right top corner. At x = 0.6, the calibration line is briefly outside the consistency ribbon. The quantile dot plot shows that 90% of the predicted probabilities are between 0.5 and 0.9."}
 
-![Zero-inflated model](images/03_01_pava_calibration_zi-1.png){.plot}
+![Zero-inflated model](images/03_01_pava_calibration_zi-1.png){.plot fig-alt="PAV-adjusted calibration plot. The red calibration line starts from y = 0 at x = 0.1 and reaches the right top corner. The calibration line stays within the consistency ribbon. The quantile dot plot shows that the predictions are quite evenly spread along the x-axis."}
 
 Comparison of two models for predicting if roaches will be observed. As noted before, the negative
 binomial model is under confident when predicting cases where no roaches are observed. In the
@@ -1000,9 +1090,9 @@ roaches example.
 
 ::: {#fig-residuals }
 
-![](images/03_01_residuals-1.png){width=90%}
+![](images/03_01_residuals-1.png){.plot width=90% fig-alt="Two graphs, on the left a binned residual plot. On the right, PAV-adjusted residual plot. The binned residual plot shows the binned average prediction errors versus the baseline roach count through 9 vertical point intervals. At zero the point showing the average error is negative and outside the confiidence interval, at 70 baseline roache count, the average error is positive and much higher than the upper limit of the confidence interval. The PAV-adjusted residual plot shows a schatterplot of the per observation difference between the CEP and the prediction. Overlaid is a consistency ribbon and observations outside the ribbon are highlighted in red. Again, for low roach counts the residuals are below the ribbon and  for low to mid level counts, some residuals are above the consistency ribbon."}
 
-![](images/03_01_residuals_zi-1.png){width=90%}
+![](images/03_01_residuals_zi-1.png){.plot width=90% fig-alt="Two graphs, on the left a binned residual plot. On the right, PAV-adjusted residual plot. At 70 baseline roaches, the average error is positive and much higher than the upper limit of the confidence interval. In the PAV-adjusted residual plot, only one observation is highlighted red. Otherwise, the residuals are within the consistency bands."}
 
 Residual plots of the two models against the baseline roach count observed at the start of the
 study. The binned calibration plots on the left are commonly used, while the PAV-adjusted residuals
@@ -1037,7 +1127,7 @@ model confuses classes B and C, and is over confident in its predictions concern
 
 ::: {#fig-categorical-bar-graphs}
 
-![](images/4_2_categorical_ppc_bars-1.png){width="60%"}
+![](images/4_2_categorical_ppc_bars-1.png){.plot width="60%" fig-alt="A bar graph showing the proportion of three classes: A, B, and C. Overlaid is the poin interval for the proportion of predicted classifications, showing the predictive mean and a credible interval. The observed proportions are very close to the predictive means."}
 
 A bar graph of the observed counts overlaid with posterior predictive means and 95\% credible
 intervals. As in the earlier examples of using bar charts, everything seems to be in order with the model predictions.
@@ -1047,17 +1137,17 @@ intervals. As in the earlier examples of using bar charts, everything seems to b
 
 ::: {#fig-categorical-ovo-reliability-diagrams layout-ncol="2"}
 
-![](images/4_2_categorical_AvsAll-1.png)
+![](images/4_2_categorical_AvsAll-1.png){.plot fig-alt="A binned calibration plot titled A versus others. The graph shows predicted probabilities binned to 9 equally spaced bins with wide credible intervals for the last 2 bins, at x = 0.75 and x = 0.9. All intervals overlap the diagonal reference line."}
 
-![](images/4_2_categorical_AvsAll-2.png)
+![](images/4_2_categorical_AvsAll-2.png){.plot fig-alt="A PAV-adjusted calibration plot titled A versus others. The red calibration line is fully inside the blue consistency bands, and the quantile dot plot shows that most predicted probabilities fall between 0 and 0.6."}
 
-![](images/4_2_categorical_BvsAll-1.png)
+![](images/4_2_categorical_BvsAll-1.png){.plot fig-alt="A binned calibration plot titled B versus others. The graph shows predicted probabilities binned to 10 equally spaced bins between 0 and 1. The credible intervals of the 2 rightmost bins are wide. The second point interval, at x = 0.15, is fully above the diagonal reference line, while the 7th and 8th are below it."}
 
-![](images/4_2_categorical_BvsAll-2.png)
+![](images/4_2_categorical_BvsAll-2.png){.plot fig-alt="A PAV-adjusted calibration plot titled B versus others. The red calibration line has a pronunced step, where the line overshoots the blue consistency bands at small predicted probabilities and dips under the bands between x = 0.5 and x = 0.75. The quantile dot plot shows that most predicted probabilities fall between 0 and 0.6."}
 
-![](images/4_2_categorical_CvsAll-1.png)
+![](images/4_2_categorical_CvsAll-1.png){.plot fig-alt="A binned calibration plot titled C versus others. The graph shows predicted probabilities binned to 9 equally spaced bins between 0 and 0.9. The credible interval of the rightmost bin is wide. The first two point intervals, are fully above the diagonal reference line, while the last lies below it."}
 
-![](images/4_2_categorical_CvsAll-2.png)
+![](images/4_2_categorical_CvsAll-2.png){.plot fig-alt="A PAV-adjusted calibration plot titled C versus others. The red calibration line has a pronunced step, where the line overshoots the blue consistency bands at small predicted probabilities and repeatedly dips under the bands between x = 0.5 and x = 0.9. The quantile dot plot shows that most predicted probabilities fall between 0 and 0.6."}
 
 Comparison between binned calibration plots and PAV-adjusted calibration plots for one versus others
 comparisons. We see that the predictions are well calibrated for class A, but the model seems to be
@@ -1083,13 +1173,13 @@ calibration issue, with the calibration curves exhibiting an S-shape, indicative
 in predicted probabilities.
 
 ::: {#fig-ordinal-data-densities}
-![](images/4_3_ordinal_data_densities-1.png){width="60%"}
+![](images/4_3_ordinal_data_densities-1.png){.plot width="60%" fig-alt="A line graph with 5 lines numbered from 1 to 5. x-axis ranges form 0 to 6 and the y-axis, titled proportion, ranges from 0 to 1. Lines 2, 3, and 4 form three consecutive distinct modes at x=2,3,and 4 respectively. Lines 1 and 5 obtain values close to 1 at the respective ends of the 0 to 6 interval. Between the modes, the two adjacent lines share most of the displayed proportion."}
 
 True proportions of the five possible values given value of the covariate $x$.
 :::
 
 ::: {#fig-ordinal-bar-graphs}
-![](images/4_3_ordinal_ppc_bars-1.png){.plot width=60%}
+![](images/4_3_ordinal_ppc_bars-1.png){.plot width=60% fig-alt="Two bar graphs, titled model 1 and model 2, showing the observed counts of five distinct classes. The counts are fairly even and overlaid on top of them are predictive means and credible intervals of the counts of observations calssified to each category. The observation for class 2 is barely outside the credible interval for model 1 and jsut inside the respective interval for model 2. Other observations are withing their credible intervals."}
 
 Again, the bar graph doesn't indicate meaningful difference between the predictive distributions.
 :::
@@ -1097,21 +1187,21 @@ Again, the bar graph doesn't indicate meaningful difference between the predicti
 
 ::: {#fig-ordinal-reliability-diagrams layout-ncol="2"}
 
-![](images/4_3_ordinal_reliability_plots_1-1.png)
+![](images/4_3_ordinal_reliability_plots_1-1.png){.plot fig-alt="A PAV-adjusted calibration plot. The red calibration curve exhibits an S-shape, leavind the consistency interval away from x = 0.5. The quantile dot plot shows that roughly 80% of the predicted probabilities are close to 0, while the rest are evenly spread between 0 and 0.9."}
 
-![](images/4_3_ordinal_reliability_plots_2-1.png)
+![](images/4_3_ordinal_reliability_plots_2-1.png){.plot fig-alt="A PAV-adjusted calibration plot. The red calibration curve briefly leaves the consistency interval close to x = 0.5. The quantile dot plot shows that roughly 80% of the predicted probabilities are close to 0, and rought 10% are between 0.9 and 1. Near x = 0.5 the dots are sparse."}
 
-![](images/4_3_ordinal_reliability_plots_1-2.png)
+![](images/4_3_ordinal_reliability_plots_1-2.png){.plot fig-alt="A PAV-adjusted calibration plot. The red calibration curve exhibits an S-shape, briefly leavind the consistency interval near 0 and 1. The quantile dot plot shows that most predicted probabilities are either close to 0 or 1, while roughly 20% of the predictions fall evenly between the extremes."}
 
-![](images/4_3_ordinal_reliability_plots_2-2.png)
+![](images/4_3_ordinal_reliability_plots_2-2.png){.plot fig-alt="A PAV-adjusted calibration plot. The red calibration curve briefly leaves the consistency interval near 0.4 and 0.7. The quantile dot plot shows that most predicted probabilities are either close to 0 or 1, and under 10% of the predictions fall between 0.2 and 0.8"}
 
-![](images/4_3_ordinal_reliability_plots_1-3.png)
+![](images/4_3_ordinal_reliability_plots_1-3.png){.plot fig-alt="A PAV-adjusted calibration plot. The red calibration curve exhibits an S-shape, briefly leavind the consistency interval near 0 and 1. The quantile dot plot shows that most predicted probabilities are either close to 0 or 1, while roughly 20% of the predictions fall evenly between the extremes."}
 
-![](images/4_3_ordinal_reliability_plots_2-3.png)
+![](images/4_3_ordinal_reliability_plots_2-3.png){.plot fig-alt="A PAV-adjusted calibration plot. The red calibration curve stays withing the consistency intervals. The quantile dot plot shows that most predicted probabilities are either close to 0 or 1, and under 10% of the predictions fall between 0.2 and 0.8"}
 
-![](images/4_3_ordinal_reliability_plots_1-4.png)
+![](images/4_3_ordinal_reliability_plots_1-4.png){.plot fig-alt="A PAV-adjusted calibration plot. The red calibration curve exhibits a slight S-shape, briefly leavind the consistency interval near 0 and 1. The quantile dot plot shows that most predicted probabilities are either close to 1, while roughly 20% of the predictions fall evenly between 0 and 1."}
 
-![](images/4_3_ordinal_reliability_plots_2-4.png)
+![](images/4_3_ordinal_reliability_plots_2-4.png){.plot fig-alt="A PAV-adjusted calibration plot. The red calibration curve stays within the consistency intervals. The quantile dot plot shows that roughly 80% of the predicted probabilities are close to 1."}
 
 The side-by-side comparison of the PAV-adjusted calibration plots for the cumulative conditional event probabilities reveal that Model 1, containing an implementation error, is under confident in its predictions.
 :::

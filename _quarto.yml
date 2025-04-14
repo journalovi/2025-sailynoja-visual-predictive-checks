@@ -9,6 +9,9 @@ format:
     theme: lumen
     toc: true
     embed-resources: true
+    citations-hover: false
+    footnotes-hover: false
+    crossrefs-hover: false
     self-contained-math: true
     html-math-method: katex
   pdf:
