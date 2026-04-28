@@ -1165,15 +1165,15 @@ We would also like to thank the maintainers and contributors of the Open Source 
 ## Research materials {.unnumbered}
 
 Source files of this article, as well as supplementary materials providing additional detail into
-the examples and case-studies shown in this article, can be found at
-[https://teemusailynoja.github.io/visual-predictive-checks](https://teemusailynoja.github.io/visual-predictive-checks). The version of the implementations used in this article can be found in [Zenodo](https://zenodo.org/records/15189799).
+the examples and case studies shown in this article, can be found at
+[https://github.com/TeemuSailynoja/visual-predictive-checks/](https://github.com/TeemuSailynoja/visual-predictive-checks/). The version of the implementations used in this article can be found in [Zenodo](https://zenodo.org/records/19660437).
 
 ## Authorship {.unnumbered}
 
  - **Teemu Säilynoja**: Conceptualization, Methodology, Software, Investigation, Writing - Review &
 Editing, Visualization
  - **Andrew R. Johnson**: Conceptualization, Writing - Review & Editing
- - **Osvaldo A. Martin**: Writing - Review & Editing, Visualization
+ - **Osvaldo A. Martin**: Writing - Review & Editing, Software, Visualization
  - **Aki Vehtari**: Conceptualization, Methodology, Writing - Review & Editing, Supervision, Funding acquisition.
 
 ## License {.unnumbered}
