@@ -40,36 +40,18 @@ the [Journal of Visualization and Interaction](https://www.journalovi.org/). See
 
 ::: {.callout-note appearance="simple" icon=false collapse=false}
 ## Abstract {.unnumbered}
+
 ###### Introduction
-A key step in the Bayesian workflow for model building is the graphical assessment of model predictions,
-whether these are drawn from the prior or posterior predictive distribution.
-The goal of these assessments is
-to identify whether the model is a reasonable (and ideally accurate) representation of the domain
-knowledge and/or observed data. There are many commonly used visual predictive checks which can be 
-misleading if their implicit assumptions do not match the reality. Thus, there is a need for more guidance 
-for selecting, interpreting, and
-diagnosing appropriate visualizations. As a visual predictive check itself can be viewed as a 
-model fit to data, assessing when this model fails to represent the data is important for drawing
-well-informed conclusions.
+A key step in the Bayesian workflow for model building is the graphical assessment of model predictions, whether these are drawn from the prior or posterior predictive distribution. The goal of these assessments is to identify whether the model is a reasonable (and ideally accurate) representation of the domain knowledge and/or observed data. There are many commonly used visual predictive checks which can be  misleading if their implicit assumptions do not match the reality. Thus, there is a need for more guidance  for selecting, interpreting, and diagnosing appropriate visualizations. As a visual predictive check itself can be viewed as a  model fit to data, assessing when this model fails to represent the data is important for drawing well-informed conclusions.
 
 ###### Demonstration
-
-We present recommendations for appropriate visual predictive checks for observations that are: continuous,
-discrete, or a mixture of the two. We also discuss diagnostics to aid in the selection of visual
-methods. Specifically, in the detection of an incorrect assumption of continuously-distributed data:
-identifying when data is likely to be discrete or contain discrete components, detecting and estimating
-possible bounds in data, and a diagnostic of the goodness-of-fit to data for density plots made
-through kernel density estimates.
+We provide guidance for visual predictive checks for continuous and discrete, and mixed data. This includes diagnostics for identifying discrete components, estimating bounds, and assessing goodness-of-fit for density plots. We also offer recommendations for visual checks tailored to binary, ordinal, categorical, and count data.
 
 ###### Conclusion
-We offer recommendations and diagnostic tools to mitigate ad-hoc decision-making in visual
-predictive checks. These contributions aim to improve the robustness and interpretability of
-Bayesian model criticism practices.
-
+We offer recommendations and diagnostic tools to mitigate ad-hoc decision-making in visual predictive checks. These contributions aim to improve the robustness and interpretability of Bayesian model criticism practices.
 
 ###### Materials
-
-The source code implementing the visualization functions and probabilistic models, as well as extended case-studies and the data for the examples are provided online. The version of these materials used in this article is available in [Zenodo](https://zenodo.org/records/15189799), and the latest version at [https://github.com/TeemuSailynoja/visual-predictive-checks/tree/main/code](https://github.com/TeemuSailynoja/visual-predictive-checks/tree/main/code).
+The source code implementing the visualization functions and probabilistic models, as well as extended case-studies and the data for the examples are provided online. The version of these materials used in this article is available in [Zenodo](https://zenodo.org/records/19660437), and the latest version at [https://github.com/TeemuSailynoja/visual-predictive-checks/tree/main/code](https://github.com/TeemuSailynoja/visual-predictive-checks/tree/main/code).
 
 :::
 
@@ -79,67 +61,41 @@ model building workflows. These assessments may reveal that the model prediction
 (or replicate) the observed data, prompting the modeller to either improve their model, or adjust
 their confidence in the predictions accordingly. In this paper, we focus on examples rising from
 Bayesian workflows [@gabry_visualization_2019;@gelman_bayesian_2020], such as posterior predictive
-checking
-[PPC; @box_sampling_1980;@rubin_bayesianly_1984; @gelman_posterior_1996; @gelman_bayesian_2013], and
+checking [PPC; @box_sampling_1980; @rubin_bayesianly_1984; @gelman_posterior_1996; @gelman_bayesian_2013], and
 visualizations of data, posterior, and posterior predictive distributions. 
 Visualization of data distribution is useful even if we do not do any modeling. In Bayesian inference, 
 the posterior distribution presents the uncertainty in the parameter values after conditioning on data, and the 
 posterior predictive distribution presents the uncertainty in the predictions for new observations.
 The posterior inference is often performed using Monte Carlo methods [@strumbelj_past_2024], and posterior and posterior 
-predictive distributions are then represented with draws from these distributions. In the same way as 
-we visualize data distributions, we can visualize posterior and posterior predictive distributions.
-In posterior predictive checking, we compare the data distribution to the posterior predictive distribution. 
-If these distributions are not similar, the model is misspecified and we should consider improving the model.
+predictive distributions are then represented with draws from these distributions. In the same way as we visualize data distributions, we can visualize posterior and predictive distributions.
+In posterior predictive checking, we compare the data distribution to the posterior predictive distribution. The predictive distribution is not expected to coincide exactly with the observed data. For example, the posterior predictive distribution of a Bayesian model typically exhibits heavier tails than the true underlying data-generating distribution. Consequently, effective visual comparisons should focus on whether the predictive distribution is consistent with observed data rather than on exact agreement. If these distributions are not similar, the model is misspecified and we should consider improving the model.
 These visualizations are also applicable to prior predictive checking, where one might compare prior predictive samples to some reference values rising from domain knowledge [@wesnerChoosingPriorsBayesian2021], and to cross-validation predictive checking where data are compared to cross-validation predictive distributions to avoid double use of data.
 
-The purpose of this paper is to illustrate common issues in visual predictive checking, to provide better recommendations for different use cases, and to provide diagnostics to automatically warn if useless or misleading visualization is used.
-Together we have decades of experience in teaching visual predictive checking and helping modellers using popular visual predictive checking tools such as `bayesplot` (@gabry_plotting_2022) and `ArviZ` (@kumar_arviz_2019).
-We have seen many times where students and modellers use commonly recommended visualizations without realizing that in their context, the specific visualization is the wrong one and either useless or even misleading.
+The purpose of this paper is to illustrate common issues in visual predictive checking, to provide better recommendations for different use cases, and to provide diagnostics to automatically warn if a useless or misleading visualization is used.
+Together we have decades of experience in teaching visual predictive checking and helping modellers use popular visual predictive checking tools such as those implemented in `bayesplot` (@gabry_plotting_2022) and `ArviZ` (@martin_2026).
+We have seen many times students and modellers use commonly recommended visualizations without realizing that, in their context, the specific visualization is incorrect, useless, or even misleading.
 Backed up with arguments from recent studies in uncertainty visualization, we provide a summary of methods we recommend.
-These methods are aimed to offer an informed basis for decision-making,
-be it for the modeller to improve on the model or for the end user to set expectations on the performance of the model.
+These methods are aimed to offer an informed basis for decision-making, be it for the modeller to improve on the model or for the end user to set expectations on the performance of the model.
 
-The visualizations we discuss should be considered as
-broadly-applicable tools aimed to give insight into the overall goodness of model fit to the
-observations, as well as to possible deviations in certain parts of the predictive density. 
-Most modeling workflows benefit from additional visualizations tailored to their specific use cases,
-as there is no general visual or numeric check that would reveal every aspect of the predictive
-capabilities of any given model.
-Some commonly-used methods for visualizing model predictions have risen from comparisons of continuous
-variables, and as such have varying degrees of usability for assessing predictions with discrete
-values. Some may not work with all continuous cases, in case of sharp upper or lower bounds in the
-set of possible values the prediction can take.
+The visualizations we discuss should be considered as broadly-applicable tools aimed to give insight into the overall goodness of model fit to the observations, as well as to possible deviations in certain parts of the predictive density. 
+Most modeling workflows benefit from additional visualizations tailored to their specific use cases, as there is no general visual or numeric check that would reveal every aspect of the predictive capabilities of any given model.
+Some commonly-used methods for visualizing model predictions have risen from comparisons of continuous variables, and as such have varying degrees of usability for assessing predictions with discrete values. Some may not work with all continuous cases, in case of sharp upper or lower bounds in the set of possible values the prediction can take.
 
-In @sec-continuous-predictive-distributions, we inspect the common use of kernel density estimates (KDE)
-in summarizing the predictive distribution and the observed data, and show comparisons between
-commonly used visualization approaches. We highlight common cases when these visualizations may hide
-useful information and propose an automated goodness-of-fit test to alert the modeller of the
-presence of conflict between the data and the visualization. In @sec-count-data, we discuss the use
-of visualizations assuming continuous data when the data and predictions are in reality discrete, but
-have a high number of unique values. We also discuss an alternate way of visualizing count data,
-when the number of cases is large, but still small enough for the
-modeller to be interested in attempting to assess the predictions as individual counts. In
-@sec-visual-predictive-checks-for-binary-data, we focus on workflows involving binary predictions.
+In @sec-continuous-predictive-distributions, we inspect the common use of kernel density estimates (KDE), histograms and quantile dot plots in summarizing the predictive distribution and the observed data.  In @sec-visual-predictive-checks-for-binary-data, we focus on predictive checks for binary data.
 We showcase tools that expand the visualizations beyond the typical bar graphs and binned
 calibration plots and instead allow for a more robust assessment of the calibration of the
 predictive probabilities. In @sec-visual-predictive-checks-for-categorical-data and
 @sec-visual-predictive-checks-for-ordinal-data, we show how the visual predictive checks described
 for binary predictions can be extended to discrete predictions with a small or medium number of
-individual cases.
+individual cases. In @sec-count-data, we discuss the use of visualizations assuming continuous data when the data and predictions are in reality discrete, but have a high number of unique values. We also discuss an alternate way of visualizing count data, when the number of cases is large, but still small enough for the modeller to be interested in attempting to assess the predictions as individual counts. Finally, in @sec-assessing-the-goodness-of-fit we propose an automated goodness-of-fit test to alert the modeller of the presence of conflict between the data and the visualization done with KDEs, histograms or quantile dot plots.
+
+The discussed methods and recommendations in this work have been implemented in the software packages `bayesplot` (@gabry_plotting_2022) and `ArviZ` (@martin_2026) to facilitate their use.
 
 
 ## Visual predictive checks for continuous data{#sec-continuous-predictive-distributions}
 
-In this section, we consider visualizations for observations from a *continuous* or *almost
-everywhere continuous* distribution. We focus on three data visualizations; histograms, and
-KDE-based continuous density plots, as they are the two most commonly used visualizations for
-summarizing unidimensional distributions, and
-quantile dot plots [@kay_when_2016] as we see that they offer a useful alternative that we recommend
-in many cases. @tbl-pros-cons summarizes the main advantages and disadvantages of these three
-visualizations, and @fig-intro-triplet shows a side-by-side comparison of these visualizations.
-Histograms and density plots are implemented in various commonly used software packages for data
-visualization and are the two most common choices for initial visual PPCs (@wickham_ggplot2_2016;
-@gabry_plotting_2022; @kumar_arviz_2019; @kay_ggdist_2023).
+In this section, we consider visualizations for observations from a *continuous* or *almost everywhere continuous* distribution. We focus on three data visualizations; histograms, KDEs and quantile dot plots [@kay_when_2016]. The first two are the most commonly used visualizations for summarizing unidimensional distributions and there are common choices for initial visual predictive checks (VPCs) (@wickham_ggplot2_2016;@gabry_plotting_2022; @martin_2026; @kay_ggdist_2023; @eabm_2025). We see quantile dots plots as a useful alternative in many cases. @tbl-pros-cons summarizes the main advantages and disadvantages of these three visualizations, and @fig-intro-triplet shows a side-by-side comparison of these visualizations.
+Histograms and KDEs are implemented in various commonly used software packages for data visualization.
 
 :::{#fig-intro-triplet layout-ncol=3}
 
