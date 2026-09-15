@@ -1,12 +1,3 @@
-```diff
-! This paper is under review on the experimental track of the Journal of Visualization and Interaction.
-Authors: @TeemuSailynoja
-OC: @mjskay
-AE: @Fumeng-Yang
-R1: @Guoziyang27
-R2: @helske
-R3: TBD
-```
 
 # Recommendations for visual predictive checks in Bayesian workflow
 
@@ -52,3 +43,13 @@ through kernel density estimates.
 We offer recommendations and diagnostic tools to mitigate ad-hoc decision-making in visual
 predictive checks. These contributions aim to improve the robustness and interpretability of
 Bayesian model criticism practices.
+
+```
+Authors: @TeemuSailynoja
+OC: @mjskay
+AE: @Fumeng-Yang
+R1: @Guoziyang27
+R2: @helske
+OM: @chatchavan
+AY: @domoritz
+```
